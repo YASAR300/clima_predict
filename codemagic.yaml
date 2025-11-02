@@ -8,6 +8,7 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m1
     environment:
+      flutter: stable
       # Uncomment and add your environment variable groups when ready:
       # groups:
       #   - keystore_credentials
@@ -58,6 +59,8 @@ workflows:
     name: Web Build
     max_build_duration: 120
     instance_type: mac_mini_m1
+    environment:
+      flutter: stable
     scripts:
       - name: Get Flutter dependencies
         script: |

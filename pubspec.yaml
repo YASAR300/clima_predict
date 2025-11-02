@@ -49,7 +49,7 @@ dependencies:
   # Location and Sensors
   geolocator: ^9.0.2
   permission_handler: ^10.1.0
-  flutter_bluetooth_serial: ^0.4.0
+  # flutter_bluetooth_serial: ^0.4.0  # Commented out due to build compatibility issues
   
   # Offline Storage
   sqflite: ^2.3.3+1

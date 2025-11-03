@@ -9,10 +9,9 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       flutter: stable
-      # Uncomment and add your environment variable groups when ready:
-      # groups:
-      #   - keystore_credentials
-      #   - api_keys
+      # Import Codemagic variable groups
+      groups:
+        - api
       vars:
         PACKAGE_NAME: "com.climapredict.app.clima_predict"
     scripts:

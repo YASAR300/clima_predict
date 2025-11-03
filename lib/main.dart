@@ -11,11 +11,20 @@ void main() async {
   // Environment now read via compile-time (ApiConfig). Keep silent if no .env.
   try {} catch (_) {}
   
-  // Initialize Hive
-  await DatabaseService.init();
+  // Initialize Hive with error handling
+  try {
+    await DatabaseService.init();
+  } catch (e) {
+    debugPrint('Error initializing database: $e');
+    // Continue anyway - app will work without persistence
+  }
   
   // Initialize background sync
-  await SyncService.initializeBackgroundSync();
+  try {
+    await SyncService.initializeBackgroundSync();
+  } catch (e) {
+    debugPrint('Error initializing background sync: $e');
+  }
 
   runApp(const ClimaPredictApp());
 }

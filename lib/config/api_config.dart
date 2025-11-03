@@ -2,10 +2,13 @@ class ApiConfig {
   // Read from compile-time environment if provided, else default
   static const String _compiledBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://climapredict-api.onrender.com',
+    defaultValue: 'http://10.0.2.2:3000', // Android emulator localhost
   );
 
   static String get baseUrl => _compiledBaseUrl;
+  
+  // For production, use: https://climapredict-api.onrender.com
+  // For physical device, use: http://YOUR_IP:3000
 
   // API endpoints
   static String get forecastEndpoint => '$baseUrl/api/v1/forecast';

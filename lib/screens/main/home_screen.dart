@@ -38,8 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _profile = profile;
     });
 
+    // Always generate forecast, even if profile is null (use defaults)
     if (profile != null) {
       await _loadForecast(profile);
+    } else {
+      // Fallback: generate forecast with default values
+      await _loadForecastWithDefaults();
     }
   }
 
@@ -109,12 +113,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _loadForecastWithDefaults() async {
+    // Generate forecast with default location when profile is not available
+    final forecast = await MLService.generateForecast(
+      village: 'Demo Village',
+      lat: 23.0,
+      lon: 72.6,
+    );
+
+    if (forecast != null) {
+      try {
+        await DatabaseService.saveForecastCache(forecast);
+      } catch (e) {
+        debugPrint('Could not cache forecast: $e');
+      }
+    }
+
+    setState(() {
+      _currentForecast = forecast;
+    });
+  }
+
   Widget _buildTodayForecastCard() {
     if (_currentForecast == null || _currentForecast!.dailyForecasts.isEmpty) {
-      return const Card(
+      return Card(
+        margin: const EdgeInsets.all(16),
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Center(child: CircularProgressIndicator()),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'Loading forecast...',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -240,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Village: ${_profile?.village ?? "Not set"}, ${_profile?.state ?? "Gujarat"}',
+                                'Village: ${_profile?.village ?? "Demo Village"}, ${_profile?.state ?? "Gujarat"}',
                                 style: Theme.of(context).textTheme.bodyLarge,
                               ),
                               const SizedBox(height: 8),

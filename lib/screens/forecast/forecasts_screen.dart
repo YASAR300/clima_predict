@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/forecast_cache.dart';
 import '../../services/database_service.dart';
+import '../../services/ml_service.dart';
 import '../../widgets/forecast_card.dart';
 
 class ForecastsScreen extends StatefulWidget {
@@ -23,12 +25,35 @@ class _ForecastsScreenState extends State<ForecastsScreen> {
 
   Future<void> _loadForecast() async {
     final profile = DatabaseService.getFarmerProfile();
+    ForecastCache? forecast;
+    
     if (profile != null) {
-      final forecast = DatabaseService.getLatestForecastForVillage(profile.village);
-      setState(() {
-        _forecast = forecast;
-      });
+      forecast = DatabaseService.getLatestForecastForVillage(profile.village);
+    } else {
+      // Fallback: get any cached forecast or generate new one
+      final allForecasts = DatabaseService.getAllForecasts();
+      if (allForecasts.isNotEmpty) {
+        forecast = allForecasts.first;
+      } else {
+        // Generate a demo forecast
+        forecast = await MLService.generateForecast(
+          village: 'Demo Village',
+          lat: 23.0,
+          lon: 72.6,
+        );
+        if (forecast != null) {
+          try {
+            await DatabaseService.saveForecastCache(forecast);
+          } catch (e) {
+            debugPrint('Could not cache forecast: $e');
+          }
+        }
+      }
     }
+    
+    setState(() {
+      _forecast = forecast;
+    });
   }
 
   void _shareForecast() {

@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 class MLService {
   static Interpreter? _interpreter;
   static bool _isLoaded = false;
-  static String _modelVersion = 'v1.0.0';
+  static final String _modelVersion = 'v1.0.0';
   
   static String get modelVersion => _modelVersion;
 

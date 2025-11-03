@@ -148,7 +148,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ...['en', 'hi'].map((lang) => RadioListTile<String>(
                     title: Text(lang == 'en' ? 'English' : 'हिंदी'),
                     value: lang,
+                    // ignore: deprecated_member_use
                     groupValue: _selectedLanguage,
+                    // ignore: deprecated_member_use
                     onChanged: (value) {
                       setState(() {
                         _selectedLanguage = value!;

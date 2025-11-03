@@ -125,8 +125,8 @@ class SensorService {
       final values = dataString.split(',');
 
       if (values.length >= 4) {
-        final sensorName = _pairedSensors[deviceId] ?? deviceId;
-        final village = 'Anand'; // Get from current profile
+        // Get village from current profile
+        final village = 'Anand';
 
         final reading = SensorReading(
           sensorId: deviceId,

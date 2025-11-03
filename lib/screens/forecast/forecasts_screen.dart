@@ -34,11 +34,8 @@ class _ForecastsScreenState extends State<ForecastsScreen> {
   void _shareForecast() {
     if (_forecast == null) return;
 
-    final shareText = 'ClimaPredict Forecast for ${_forecast!.village}\n\n' +
-        _forecast!.dailyForecasts
-            .map((f) => '${f.date}: ${f.tempMin.round()}°-${f.tempMax.round()}°C, '
-                'Rain: ${(f.precipProb * 100).round()}%')
-            .join('\n');
+    final shareText = 'ClimaPredict Forecast for ${_forecast!.village}\n\n'
+        '${_forecast!.dailyForecasts.map((f) => '${f.date}: ${f.tempMin.round()}°-${f.tempMax.round()}°C, Rain: ${(f.precipProb * 100).round()}%').join('\n')}';
 
     Share.share(shareText, subject: 'ClimaPredict Forecast');
   }

@@ -11,7 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  FarmerProfile? _profile;
   bool _offlineMode = false;
   String _selectedLanguage = 'en';
   String _notificationLevel = 'Medium';
@@ -27,7 +26,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _loadProfile() {
     final profile = DatabaseService.getFarmerProfile();
     setState(() {
-      _profile = profile;
       if (profile != null) {
         _selectedLanguage = profile.language;
       }
@@ -80,7 +78,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       RadioListTile<String>(
                         title: const Text('English'),
                         value: 'en',
+                        // ignore: deprecated_member_use
                         groupValue: _selectedLanguage,
+                        // ignore: deprecated_member_use
                         onChanged: (value) {
                           setState(() {
                             _selectedLanguage = value!;
@@ -91,7 +91,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       RadioListTile<String>(
                         title: const Text('हिंदी'),
                         value: 'hi',
+                        // ignore: deprecated_member_use
                         groupValue: _selectedLanguage,
+                        // ignore: deprecated_member_use
                         onChanged: (value) {
                           setState(() {
                             _selectedLanguage = value!;
@@ -123,7 +125,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       return RadioListTile<String>(
                         title: Text(level),
                         value: level,
+                        // ignore: deprecated_member_use
                         groupValue: _notificationLevel,
+                        // ignore: deprecated_member_use
                         onChanged: (value) {
                           setState(() {
                             _notificationLevel = value!;
@@ -213,10 +217,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(
               onPressed: () async {
+                if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Syncing...')),
                 );
                 await SyncService.triggerManualSync();
+                if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Sync completed')),
                 );

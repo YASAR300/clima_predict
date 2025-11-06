@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.climapredict.app.clima_predict"
+    namespace = "com.climapredict.app.climapredict"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,10 +22,13 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.climapredict.app.clima_predict"
+        applicationId = "com.climapredict.app.climapredict"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 26  // Required by tflite_flutter plugin
+        minSdk = 21
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -40,7 +43,17 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Reduce size for Play upload (not used for debug build)
+            isShrinkResources = true
+            isMinifyEnabled = true
         }
+    }
+
+    // Create universal debug APK for installation on any device
+    buildTypes.getByName("debug") {
+        // Keep as universal (no splits) for easier device installs
+        isMinifyEnabled = false
+        isShrinkResources = false
     }
 }
 

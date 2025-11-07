@@ -1,5 +1,6 @@
-package com.climapredict.app.clima_predict
+package com.climapredict.app.climapredict
 
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : FlutterActivity()
+

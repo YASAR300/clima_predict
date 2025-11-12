@@ -1,38 +1,34 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import { Home, Calendar, Map, StatsReport, User } from 'iconoir-react';
 
 const navItems = [
   { 
     path: '/', 
-    icon: '🏠',
+    icon: Home,
     label: 'Home',
-    activeIcon: '🏠',
     customIcon: true
   },
   { 
     path: '/forecast', 
-    icon: '📅',
-    label: 'Forecast',
-    activeIcon: '📅'
+    icon: Calendar,
+    label: 'Forecast'
   },
   { 
     path: '/weather-map', 
-    icon: '🗺️',
-    label: 'Map',
-    activeIcon: '🗺️'
+    icon: Map,
+    label: 'Map'
   },
   { 
     path: '/insights', 
-    icon: '📊',
-    label: 'Insights',
-    activeIcon: '📊'
+    icon: StatsReport,
+    label: 'Insights'
   },
   { 
     path: '/profile', 
-    icon: '👤',
-    label: 'Profile',
-    activeIcon: '👤'
+    icon: User,
+    label: 'Profile'
   },
 ];
 
@@ -65,10 +61,14 @@ export default function BottomNavigation() {
                     </div>
                   </div>
                 ) : (
-                  <div className={`text-2xl mb-0.5 transition-all duration-200 ${
+                  <div className={`mb-0.5 transition-all duration-200 ${
                     isActive ? 'scale-110' : 'opacity-60'
                   }`}>
-                    {item.icon}
+                    <item.icon 
+                      width={24} 
+                      height={24} 
+                      className={isActive ? 'text-[#00D09C]' : 'text-white/60'}
+                    />
                   </div>
                 )}
                 <span className={`text-[10px] font-medium leading-tight mt-0.5 ${

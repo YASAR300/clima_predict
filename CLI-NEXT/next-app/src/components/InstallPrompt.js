@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { SmartphoneDevice, Xmark } from 'iconoir-react';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -110,7 +111,7 @@ export default function InstallPrompt() {
         <div className="max-w-md mx-auto bg-gradient-to-br from-[#00D09C] to-[#4D9FFF] rounded-2xl p-5 shadow-[0_0_20px_rgba(0,208,156,0.4)] border border-white/20">
         <div className="flex items-start gap-4">
           <div className="bg-white/20 rounded-xl p-3 flex-shrink-0">
-            <span className="text-3xl">📱</span>
+            <SmartphoneDevice width={32} height={32} className="text-white" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-white mb-1">
@@ -139,7 +140,7 @@ export default function InstallPrompt() {
             className="text-white/70 hover:text-white transition-colors flex-shrink-0"
             aria-label="Close"
           >
-            <span className="text-xl">×</span>
+            <Xmark width={20} height={20} />
           </button>
         </div>
       </div>

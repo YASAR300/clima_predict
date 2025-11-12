@@ -6,6 +6,23 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { weatherAlerts } from '@/data/staticData';
 import { apiService } from '@/services/apiService';
 import { weatherService } from '@/services/weatherService';
+import { 
+  Pin, 
+  Bell, 
+  Settings, 
+  Cloud, 
+  WarningTriangle, 
+  Droplet, 
+  Wind, 
+  Eye, 
+  Map, 
+  Network, 
+  EvPlug, 
+  Rain,
+  Thunderstorm,
+  FireFlame,
+  NavArrowRight
+} from 'iconoir-react';
 
 export default function Home() {
   const [apiStatus, setApiStatus] = useState('checking');
@@ -58,11 +75,24 @@ export default function Home() {
     return recommendations[aqi] || 'Check air quality before going outside';
   };
 
+  const getAlertIcon = (icon) => {
+    const iconMap = {
+      '🌧️': Rain,
+      '⛈️': Thunderstorm,
+      '🔥': FireFlame,
+      '⚠️': WarningTriangle,
+    };
+    const IconComponent = iconMap[icon] || WarningTriangle;
+    return IconComponent;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D0D0D] text-white pb-20 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4 animate-pulse">⛅</div>
+          <div className="mb-4 animate-pulse flex justify-center">
+            <Cloud width={48} height={48} className="text-[#00D09C]" />
+          </div>
           <div className="text-lg text-[#B0B0B0]">Loading weather data...</div>
         </div>
         <BottomNavigation />
@@ -75,7 +105,9 @@ export default function Home() {
       <div className="min-h-screen bg-[#0D0D0D] text-white pb-20">
         <div className="max-w-md mx-auto px-5 pt-5">
           <div className="text-center py-10">
-            <div className="text-4xl mb-4">⚠️</div>
+            <div className="mb-4 flex justify-center">
+              <WarningTriangle width={48} height={48} className="text-[#FF6B35]" />
+            </div>
             <div className="text-lg text-[#B0B0B0] mb-2">Unable to load weather data</div>
             <div className="text-sm text-[#707070] mb-4">Please check your internet connection</div>
             <button
@@ -99,7 +131,7 @@ export default function Home() {
         <header className="w-full px-5 pt-3 pb-3">
           <div className="flex justify-between items-center w-full">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-[#00D09C] text-sm flex-shrink-0">📍</span>
+              <Pin width={16} height={16} className="text-[#00D09C] flex-shrink-0" />
               <span className="text-base font-medium text-white truncate">{weatherData.location}</span>
               {apiStatus === 'connected' && (
                 <span className="text-xs bg-[#00D09C]/20 text-[#00D09C] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ml-1">Live</span>
@@ -107,10 +139,10 @@ export default function Home() {
             </div>
             <div className="flex gap-3 flex-shrink-0">
               <Link href="/alerts" className="p-1.5 select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-                <span className="text-xl">🔔</span>
+                <Bell width={20} height={20} className="text-white" />
               </Link>
               <Link href="/settings" className="p-1.5 select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-                <span className="text-xl">⚙️</span>
+                <Settings width={20} height={20} className="text-white" />
               </Link>
           </div>
         </div>
@@ -132,17 +164,17 @@ export default function Home() {
               </div>
                   <div className="flex justify-around pt-4 border-t border-white/20 w-full">
                     <div className="flex flex-col items-center flex-1 min-w-0">
-                      <span className="text-2xl mb-1.5">💧</span>
+                      <Droplet width={28} height={28} className="text-white mb-1.5" />
                       <span className="text-base font-semibold text-white">{weatherData.humidity}%</span>
                       <span className="text-xs text-white/80">Humidity</span>
                     </div>
                     <div className="flex flex-col items-center flex-1 min-w-0">
-                      <span className="text-2xl mb-1.5">💨</span>
+                      <Wind width={28} height={28} className="text-white mb-1.5" />
                       <span className="text-base font-semibold text-white">{weatherData.windSpeed} km/h</span>
                       <span className="text-xs text-white/80">Wind</span>
                     </div>
                     <div className="flex flex-col items-center flex-1 min-w-0">
-                      <span className="text-2xl mb-1.5">👁️</span>
+                      <Eye width={28} height={28} className="text-white mb-1.5" />
                       <span className="text-base font-semibold text-white">{weatherData.visibility} km</span>
                       <span className="text-xs text-white/80">Visibility</span>
                     </div>
@@ -158,25 +190,25 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-3 w-full">
               <Link href="/weather-map" className="bg-[#252525] rounded-2xl p-4 border border-[#4D9FFF]/30 active:scale-[0.98] transition-transform w-full overflow-hidden select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <div className="bg-[#4D9FFF]/20 rounded-xl p-3 w-fit mb-2.5">
-                  <span className="text-3xl block">🗺️</span>
+                  <Map width={32} height={32} className="text-[#4D9FFF]" />
                     </div>
                 <div className="text-base font-medium text-white truncate">Weather Map</div>
               </Link>
               <Link href="/sensors" className="bg-[#252525] rounded-2xl p-4 border border-[#9D4EDD]/30 active:scale-[0.98] transition-transform w-full overflow-hidden select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <div className="bg-[#9D4EDD]/20 rounded-xl p-3 w-fit mb-2.5">
-                  <span className="text-3xl block">📡</span>
+                  <Network width={32} height={32} className="text-[#9D4EDD]" />
                   </div>
                 <div className="text-base font-medium text-white truncate">Sensors</div>
               </Link>
               <Link href="/alerts" className="bg-[#252525] rounded-2xl p-4 border border-[#FF6B35]/30 active:scale-[0.98] transition-transform w-full overflow-hidden select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <div className="bg-[#FF6B35]/20 rounded-xl p-3 w-fit mb-2.5">
-                  <span className="text-3xl block">⚠️</span>
+                  <WarningTriangle width={32} height={32} className="text-[#FF6B35]" />
                 </div>
                 <div className="text-base font-medium text-white truncate">Alerts</div>
               </Link>
               <Link href="/backend-test" className="bg-[#252525] rounded-2xl p-4 border border-[#FFC857]/30 active:scale-[0.98] transition-transform w-full overflow-hidden select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <div className="bg-[#FFC857]/20 rounded-xl p-3 w-fit mb-2.5">
-                  <span className="text-3xl block">🔌</span>
+                  <EvPlug width={32} height={32} className="text-[#FFC857]" />
               </div>
                 <div className="text-base font-medium text-white truncate">Backend Test</div>
               </Link>
@@ -192,14 +224,17 @@ export default function Home() {
                   <Link key={index} href="/alerts" className="block w-full active:scale-[0.98] transition-transform select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                     <div className="bg-[#252525] rounded-2xl p-4 border w-full overflow-hidden" style={{ borderColor: `${alert.color}4D` }}>
                       <div className="flex items-start gap-3 w-full">
-                        <div className="bg-opacity-20 rounded-xl p-2.5 flex-shrink-0" style={{ backgroundColor: `${alert.color}33` }}>
-                          <span className="text-2xl block">{alert.icon}</span>
+                        <div className="bg-opacity-20 rounded-xl p-2.5 flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: `${alert.color}33` }}>
+                          {(() => {
+                            const IconComponent = getAlertIcon(alert.icon);
+                            return <IconComponent width={24} height={24} style={{ color: alert.color }} />;
+                          })()}
                         </div>
                         <div className="flex-1 min-w-0 overflow-hidden">
                           <div className="text-base font-medium text-white mb-1 truncate">{alert.title}</div>
                           <div className="text-sm text-[#B0B0B0] line-clamp-2 leading-relaxed break-words">{alert.description}</div>
                         </div>
-                        <span className="text-[#707070] text-xl flex-shrink-0 mt-1">›</span>
+                        <NavArrowRight width={20} height={20} className="text-[#707070] flex-shrink-0 mt-1" />
             </div>
                     </div>
                   </Link>
@@ -220,7 +255,7 @@ export default function Home() {
                     <div className="text-sm text-[#B0B0B0] font-medium truncate">{airQuality.category}</div>
                     </div>
                   <div className="bg-[#FFC857]/20 rounded-full p-3 flex-shrink-0 ml-3">
-                    <span className="text-4xl block">🌬️</span>
+                    <Wind width={40} height={40} className="text-[#FFC857]" />
                   </div>
                 </div>
                 <div className="text-sm text-[#B0B0B0] leading-relaxed break-words">{airQuality.recommendation}</div>

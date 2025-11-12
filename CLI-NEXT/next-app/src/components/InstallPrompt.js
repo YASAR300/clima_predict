@@ -6,21 +6,20 @@ import { SmartphoneDevice, Xmark } from 'iconoir-react';
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      return true;
+    }
+    if (window.localStorage.getItem('pwa-installed') === 'true') {
+      return true;
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-      return;
-    }
-
-    // Check if app was previously installed
-    if (window.localStorage.getItem('pwa-installed') === 'true') {
-      setIsInstalled(true);
-      return;
-    }
-
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
       // Prevent the mini-infobar from appearing on mobile
@@ -34,18 +33,19 @@ export default function InstallPrompt() {
       }, 3000); // Show after 3 seconds
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    // Check if app was just installed
-    window.addEventListener('appinstalled', () => {
+    const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
       window.localStorage.setItem('pwa-installed', 'true');
-    });
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 

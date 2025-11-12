@@ -30,6 +30,17 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [airQuality, setAirQuality] = useState(null);
 
+  function getAQIRecommendation(aqi) {
+    const recommendations = {
+      1: 'Air quality is good. Enjoy outdoor activities.',
+      2: 'Air quality is acceptable for most people.',
+      3: 'Sensitive groups should limit outdoor activities',
+      4: 'Everyone should limit outdoor activities',
+      5: 'Avoid outdoor activities if possible',
+    };
+    return recommendations[aqi] || 'Check air quality before going outside';
+  }
+
   useEffect(() => {
     // Check API health and fetch weather data
     const initializeData = async () => {
@@ -63,17 +74,6 @@ export default function Home() {
     const interval = setInterval(initializeData, 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const getAQIRecommendation = (aqi) => {
-    const recommendations = {
-      1: 'Air quality is good. Enjoy outdoor activities.',
-      2: 'Air quality is acceptable for most people.',
-      3: 'Sensitive groups should limit outdoor activities',
-      4: 'Everyone should limit outdoor activities',
-      5: 'Avoid outdoor activities if possible',
-    };
-    return recommendations[aqi] || 'Check air quality before going outside';
-  };
 
   const getAlertIcon = (icon) => {
     const iconMap = {

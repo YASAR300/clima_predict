@@ -10,6 +10,7 @@ This is the Next.js web version of the ClimaPredict application, converted from 
 - 🌾 **Crop Health Monitoring**: Track crop health and yield
 - 💰 **Market Prices**: Live crop prices and trends
 - 🛡️ **Insurance**: Crop insurance information and claims
+- 🗺️ **Interactive Weather Map**: Leaflet.js map with OpenWeatherMap overlays
 - 📡 **IoT Sensors**: Monitor soil moisture, temperature, and more
 - ⚠️ **Weather Alerts**: Real-time weather warnings
 
@@ -37,7 +38,10 @@ npm install
 2. Create a `.env.local` file in the root directory:
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
 ```
+
+> Need an API key? Create one for free at [https://openweathermap.org/api](https://openweathermap.org/api). The weather map will render the base map without it, but OpenWeatherMap overlays, location search, and on-map inspections require this key.
 
 3. Run the development server:
 ```bash

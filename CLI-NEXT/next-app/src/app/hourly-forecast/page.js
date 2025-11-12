@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { weatherService } from '@/services/weatherService';
+import { useActiveLocation } from '@/hooks/useActiveLocation';
 
 export default function HourlyForecast() {
   const [hourlyData, setHourlyData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { activeLocation } = useActiveLocation();
 
   useEffect(() => {
     const fetchHourly = async () => {
       setLoading(true);
-      const result = await weatherService.getHourlyForecast();
+      const result = await weatherService.getHourlyForecast(activeLocation);
       if (result.success) {
         setHourlyData(result.data);
       }
@@ -23,7 +25,7 @@ export default function HourlyForecast() {
     // Refresh every 30 minutes
     const interval = setInterval(fetchHourly, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeLocation]);
 
   if (loading) {
     return (

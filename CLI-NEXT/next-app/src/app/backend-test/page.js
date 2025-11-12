@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { apiConfig } from '@/config/apiConfig';
 import { apiService } from '@/services/apiService';
 import { weatherService } from '@/services/weatherService';
+import { getActiveLocation } from '@/utils/locationPreferences';
 
 export default function BackendTest() {
   const [testResults, setTestResults] = useState(null);
@@ -28,13 +29,14 @@ export default function BackendTest() {
     const metrics = await apiService.getMetrics();
 
     // Test Next.js Weather API - Current Weather
-    const currentWeather = await weatherService.getCurrentWeather();
+    const activeLocation = getActiveLocation();
+    const currentWeather = await weatherService.getCurrentWeather(activeLocation);
 
     // Test Next.js Weather API - Forecast
-    const weatherForecast = await weatherService.getForecast();
+    const weatherForecast = await weatherService.getForecast(activeLocation);
 
     // Test Next.js Weather API - Hourly
-    const hourlyForecast = await weatherService.getHourlyForecast();
+    const hourlyForecast = await weatherService.getHourlyForecast(activeLocation);
 
     const results = {
       backend: {

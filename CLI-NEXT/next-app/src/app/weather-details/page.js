@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { weatherService } from '@/services/weatherService';
+import { useActiveLocation } from '@/hooks/useActiveLocation';
 
 export default function WeatherDetails() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { activeLocation } = useActiveLocation();
 
   useEffect(() => {
     const fetchWeather = async () => {
       setLoading(true);
-      const result = await weatherService.getCurrentWeather();
+      const result = await weatherService.getCurrentWeather(activeLocation);
       if (result.success) {
         setWeatherData(result.data);
       }
@@ -19,7 +21,7 @@ export default function WeatherDetails() {
     };
 
     fetchWeather();
-  }, []);
+  }, [activeLocation]);
 
   if (loading || !weatherData) {
     return (

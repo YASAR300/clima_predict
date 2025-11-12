@@ -1,11 +1,37 @@
 // Weather Service - Fetches real data from Next.js API routes
 const API_BASE = '/api/weather';
 
+const FALLBACK_LOCATION = {
+  lat: '19.0760',
+  lon: '72.8777',
+  name: 'Mumbai',
+};
+
+function resolveLocation(location) {
+  if (!location) {
+    return FALLBACK_LOCATION;
+  }
+  return {
+    lat: String(location.lat ?? FALLBACK_LOCATION.lat),
+    lon: String(location.lon ?? FALLBACK_LOCATION.lon),
+    name:
+      location.customName?.trim() ||
+      location.label ||
+      location.city ||
+      FALLBACK_LOCATION.name,
+  };
+}
+
 export const weatherService = {
   // Get current weather
-  async getCurrentWeather(lat = '19.0760', lon = '72.8777', city = 'Mumbai') {
+  async getCurrentWeather(location) {
+    const resolved = resolveLocation(location);
     try {
-      const response = await fetch(`${API_BASE}/current?lat=${lat}&lon=${lon}&city=${encodeURIComponent(city)}`);
+      const response = await fetch(
+        `${API_BASE}/current?lat=${resolved.lat}&lon=${resolved.lon}&city=${encodeURIComponent(
+          resolved.name
+        )}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch weather');
       }
@@ -18,9 +44,12 @@ export const weatherService = {
   },
 
   // Get 7-day forecast
-  async getForecast(lat = '19.0760', lon = '72.8777') {
+  async getForecast(location) {
+    const resolved = resolveLocation(location);
     try {
-      const response = await fetch(`${API_BASE}/forecast?lat=${lat}&lon=${lon}`);
+      const response = await fetch(
+        `${API_BASE}/forecast?lat=${resolved.lat}&lon=${resolved.lon}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch forecast');
       }
@@ -33,9 +62,12 @@ export const weatherService = {
   },
 
   // Get hourly forecast (24 hours)
-  async getHourlyForecast(lat = '19.0760', lon = '72.8777') {
+  async getHourlyForecast(location) {
+    const resolved = resolveLocation(location);
     try {
-      const response = await fetch(`${API_BASE}/hourly?lat=${lat}&lon=${lon}`);
+      const response = await fetch(
+        `${API_BASE}/hourly?lat=${resolved.lat}&lon=${resolved.lon}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch hourly forecast');
       }

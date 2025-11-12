@@ -26,6 +26,8 @@ const LAYER_DEFINITIONS = [
     emoji: '🌦️',
     accent: '#4D9FFF',
     description: 'Visualises rainfall intensity across the region',
+    gradient: ['#2236FF', '#4D9FFF'],
+    glow: 'rgba(77,159,255,0.35)',
   },
   {
     id: 'temp_new',
@@ -33,6 +35,8 @@ const LAYER_DEFINITIONS = [
     emoji: '🌡️',
     accent: '#FF6B35',
     description: 'Shows surface temperature distribution',
+    gradient: ['#FF3F2E', '#FFAD60'],
+    glow: 'rgba(255,107,53,0.35)',
   },
   {
     id: 'clouds_new',
@@ -40,6 +44,8 @@ const LAYER_DEFINITIONS = [
     emoji: '☁️',
     accent: '#9D4EDD',
     description: 'Highlights cloud coverage and density',
+    gradient: ['#312E81', '#9D4EDD'],
+    glow: 'rgba(157,78,221,0.35)',
   },
   {
     id: 'pressure_new',
@@ -47,6 +53,8 @@ const LAYER_DEFINITIONS = [
     emoji: '🔽',
     accent: '#FFC857',
     description: 'Displays mean sea-level pressure patterns',
+    gradient: ['#FF7F11', '#FFC857'],
+    glow: 'rgba(255,200,87,0.35)',
   },
   {
     id: 'wind_new',
@@ -54,6 +62,8 @@ const LAYER_DEFINITIONS = [
     emoji: '💨',
     accent: '#00D09C',
     description: 'Illustrates surface wind intensity',
+    gradient: ['#0EA5E9', '#00D09C'],
+    glow: 'rgba(14,165,233,0.35)',
   },
 ];
 
@@ -228,74 +238,77 @@ const WeatherMapInner = () => {
       <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.35)]">
         <div className="h-[400px] w-full">
           {isClientReady ? (
-            <MapContainer
-              id={MAP_CONTAINER_ID}
-              center={mapCenter}
-              zoom={DEFAULT_ZOOM}
-              minZoom={2}
-              zoomControl={false}
-              className="h-full w-full bg-[#111]"
-              scrollWheelZoom
-            >
-              <MapEffect center={mapCenter} />
-              <MapClickHandler />
-              <ZoomControl position="topright" />
-              <TileLayer attribution={TILE_ATTRIBUTION} url={baseTileUrl} />
-              {overlayTileUrl && (
-                <TileLayer
-                  key={selectedLayer.id}
-                  url={overlayTileUrl}
-                  attribution='Weather data &copy; <a href="https://openweathermap.org/" target="_blank" rel="noreferrer">OpenWeatherMap</a>'
-                  opacity={overlayOpacity}
-                />
-              )}
+            <>
+              <MapContainer
+                id={MAP_CONTAINER_ID}
+                center={mapCenter}
+                zoom={DEFAULT_ZOOM}
+                minZoom={2}
+                zoomControl={false}
+                className="h-full w-full bg-[#111]"
+                scrollWheelZoom
+              >
+                <MapEffect center={mapCenter} />
+                <MapClickHandler />
+                <ZoomControl position="topright" />
+                <TileLayer attribution={TILE_ATTRIBUTION} url={baseTileUrl} />
+                {overlayTileUrl && (
+                  <TileLayer
+                    key={selectedLayer.id}
+                    url={overlayTileUrl}
+                    attribution='Weather data &copy; <a href="https://openweathermap.org/" target="_blank" rel="noreferrer">OpenWeatherMap</a>'
+                    opacity={overlayOpacity}
+                  />
+                )}
 
-              {activePoint && (
-                <CircleMarker
-                  center={[activePoint.lat, activePoint.lon]}
-                  radius={10}
-                  pathOptions={{ color: '#00D09C', weight: 2, fillOpacity: 0.4 }}
-                >
-                  <Tooltip direction="top" offset={[0, -6]} permanent>
-                    {activePoint.label}
-                  </Tooltip>
-                  {pointWeather && (
-                    <Popup>
-                      <div className="space-y-1 text-sm">
-                        <p className="font-semibold text-[#0D0D0D]">
-                          {pointWeather.location}
-                        </p>
-                        {pointWeather.temperature != null && (
-                          <p>
-                            Temperature:{' '}
-                            <span className="font-medium">
-                              {Math.round(pointWeather.temperature)}°C
-                            </span>
+                {activePoint && (
+                  <CircleMarker
+                    center={[activePoint.lat, activePoint.lon]}
+                    radius={10}
+                    pathOptions={{ color: '#00D09C', weight: 2, fillOpacity: 0.4 }}
+                  >
+                    <Tooltip direction="top" offset={[0, -6]} permanent>
+                      {activePoint.label}
+                    </Tooltip>
+                    {pointWeather && (
+                      <Popup>
+                        <div className="space-y-1 text-sm">
+                          <p className="font-semibold text-[#0D0D0D]">
+                            {pointWeather.location}
                           </p>
-                        )}
-                        {pointWeather.feelsLike != null && (
-                          <p>Feels like: {Math.round(pointWeather.feelsLike)}°C</p>
-                        )}
-                        {pointWeather.humidity != null && (
-                          <p>Humidity: {pointWeather.humidity}%</p>
-                        )}
-                        {pointWeather.windSpeed != null && (
-                          <p>
-                            Wind: {Math.round(pointWeather.windSpeed)} km/h
-                            {pointWeather.windDirection ? (
-                              <span className="ml-1">• {pointWeather.windDirection}</span>
-                            ) : null}
-                          </p>
-                        )}
-                        {pointWeather.description && (
-                          <p className="capitalize">{pointWeather.description}</p>
-                        )}
-                      </div>
-                    </Popup>
-                  )}
-                </CircleMarker>
-              )}
-            </MapContainer>
+                          {pointWeather.temperature != null && (
+                            <p>
+                              Temperature:{' '}
+                              <span className="font-medium">
+                                {Math.round(pointWeather.temperature)}°C
+                              </span>
+                            </p>
+                          )}
+                          {pointWeather.feelsLike != null && (
+                            <p>Feels like: {Math.round(pointWeather.feelsLike)}°C</p>
+                          )}
+                          {pointWeather.humidity != null && (
+                            <p>Humidity: {pointWeather.humidity}%</p>
+                          )}
+                          {pointWeather.windSpeed != null && (
+                            <p>
+                              Wind: {Math.round(pointWeather.windSpeed)} km/h
+                              {pointWeather.windDirection ? (
+                                <span className="ml-1">• {pointWeather.windDirection}</span>
+                              ) : null}
+                            </p>
+                          )}
+                          {pointWeather.description && (
+                            <p className="capitalize">{pointWeather.description}</p>
+                          )}
+                        </div>
+                      </Popup>
+                    )}
+                  </CircleMarker>
+                )}
+              </MapContainer>
+              <ActiveLayerLegend layer={selectedLayer} />
+            </>
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-[#1A1A1A]">
               <div className="text-center space-y-2">
@@ -365,27 +378,48 @@ const LayerButtons = ({ selectedLayer, onSelectLayer }) => (
     <div className="grid grid-cols-2 gap-3">
       {LAYER_DEFINITIONS.map((layer) => {
         const isActive = selectedLayer.id === layer.id;
+        const gradient = layer.gradient || [layer.accent, '#1A1A1A'];
         return (
           <button
             key={layer.id}
             onClick={() => onSelectLayer(layer)}
-            className={`flex items-center gap-3 rounded-2xl border p-3 transition-transform ${
-              isActive
-                ? 'border-white/60 bg-white/10 scale-[0.99]'
-                : 'border-white/10 bg-[#1A1A1A]'
+            className={`relative overflow-hidden flex items-center gap-3 rounded-2xl border p-3 transition-transform ${
+              isActive ? 'border-white/60 scale-[0.99]' : 'border-white/10'
             }`}
+            style={
+              isActive
+                ? {
+                    backgroundImage: `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})`,
+                    boxShadow: `0 18px 45px ${
+                      layer.glow || `${layer.accent}55`
+                    }`,
+                  }
+                : { backgroundColor: '#1A1A1A' }
+            }
           >
+            {isActive && (
+              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.45),transparent_60%)] opacity-80" />
+            )}
             <span
-              className="text-2xl flex h-12 w-12 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${layer.accent}33` }}
+              className={`relative text-2xl flex h-12 w-12 items-center justify-center rounded-xl ${
+                isActive
+                  ? 'bg-white/15 shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-[pulse_2.8s_ease-in-out_infinite]'
+                  : 'bg-white/5'
+              }`}
             >
               {layer.emoji}
             </span>
             <div className="text-left">
-              <p className="text-white font-semibold text-sm">
+              <p className="text-white font-semibold text-sm drop-shadow">
                 {layer.label}
               </p>
-              <p className="text-xs text-[#B0B0B0]">{layer.description}</p>
+              <p
+                className={`text-xs leading-relaxed ${
+                  isActive ? 'text-white/80' : 'text-[#B0B0B0]'
+                }`}
+              >
+                {layer.description}
+              </p>
             </div>
           </button>
         );
@@ -529,6 +563,33 @@ const InfoBadge = ({ label, value, className = '' }) => (
     <p className="text-sm font-semibold text-white break-words">{value}</p>
   </div>
 );
+
+const ActiveLayerLegend = ({ layer }) => {
+  if (!layer) return null;
+  const gradient = layer.gradient || [layer.accent, '#1A1A1A'];
+  return (
+    <div
+      className="pointer-events-none absolute bottom-4 left-4 right-4 md:left-6 md:right-auto md:w-72 backdrop-blur-md rounded-2xl border border-white/15 shadow-[0_12px_35px_rgba(0,0,0,0.35)]"
+      style={{
+        backgroundImage: `linear-gradient(135deg, ${gradient[0]}B5, ${gradient[1]}A0)`,
+      }}
+    >
+      <div className="flex items-start gap-3 px-4 py-3">
+        <div className="text-2xl animate-[pulse_3.2s_ease-in-out_infinite]">
+          {layer.emoji}
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-white drop-shadow">
+            {layer.label} Overlay
+          </p>
+          <p className="text-xs text-white/80 leading-relaxed">
+            {layer.description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default WeatherMapInner;
 

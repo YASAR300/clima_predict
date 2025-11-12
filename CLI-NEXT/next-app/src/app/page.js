@@ -6,6 +6,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { weatherAlerts } from '@/data/staticData';
 import { apiService } from '@/services/apiService';
 import { weatherService } from '@/services/weatherService';
+import { useActiveLocation } from '@/hooks/useActiveLocation';
 import { 
   Pin, 
   Bell, 
@@ -29,6 +30,7 @@ export default function Home() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [airQuality, setAirQuality] = useState(null);
+  const { activeLocation } = useActiveLocation();
 
   function getAQIRecommendation(aqi) {
     const recommendations = {
@@ -42,38 +44,48 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // Check API health and fetch weather data
+    let cancelled = false;
+
     const initializeData = async () => {
       setLoading(true);
-      
-      // Check backend API health
+
       const health = await apiService.checkHealth();
-      setApiStatus(health.success ? 'connected' : 'disconnected');
-      
-      // Fetch real weather data
-      const weather = await weatherService.getCurrentWeather();
-      if (weather.success) {
-        setWeatherData(weather.data);
-        if (weather.data.airQuality) {
-          setAirQuality({
-            aqi: weather.data.airQuality.aqi * 20, // Convert 1-5 to 0-100 scale
-            category: weather.data.airQuality.category,
-            pm25: weather.data.airQuality.pm25,
-            pm10: weather.data.airQuality.pm10,
-            recommendation: getAQIRecommendation(weather.data.airQuality.aqi),
-          });
-        }
+      if (!cancelled) {
+        setApiStatus(health.success ? 'connected' : 'disconnected');
       }
-      
-      setLoading(false);
+
+      const weather = await weatherService.getCurrentWeather(activeLocation);
+      if (!cancelled) {
+        if (weather.success) {
+          setWeatherData(weather.data);
+          if (weather.data.airQuality) {
+            setAirQuality({
+              aqi: weather.data.airQuality.aqi * 20, // Convert 1-5 to 0-100 scale
+              category: weather.data.airQuality.category,
+              pm25: weather.data.airQuality.pm25,
+              pm10: weather.data.airQuality.pm10,
+              recommendation: getAQIRecommendation(
+                weather.data.airQuality.aqi
+              ),
+            });
+          } else {
+            setAirQuality(null);
+          }
+        } else {
+          setWeatherData(null);
+        }
+        setLoading(false);
+      }
     };
 
     initializeData();
-    
-    // Refresh every 10 minutes
     const interval = setInterval(initializeData, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [activeLocation]);
 
   const getAlertIcon = (icon) => {
     const iconMap = {

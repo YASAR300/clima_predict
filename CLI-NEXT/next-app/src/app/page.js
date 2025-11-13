@@ -7,6 +7,7 @@ import { weatherAlerts } from '@/data/staticData';
 import { apiService } from '@/services/apiService';
 import { weatherService } from '@/services/weatherService';
 import { useActiveLocation } from '@/hooks/useActiveLocation';
+import { setActiveLocation } from '@/utils/locationPreferences';
 import { 
   Pin, 
   Bell, 
@@ -30,7 +31,7 @@ export default function Home() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [airQuality, setAirQuality] = useState(null);
-  const { activeLocation } = useActiveLocation();
+  const { activeLocation, locations } = useActiveLocation();
 
   function getAQIRecommendation(aqi) {
     const recommendations = {
@@ -144,19 +145,50 @@ export default function Home() {
           <div className="flex justify-between items-center w-full">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <Pin width={16} height={16} className="text-[#00D09C] flex-shrink-0" />
-              <span className="text-base font-medium text-white truncate">{weatherData.location}</span>
+              <span className="text-base font-medium text-white truncate">
+                {weatherData.location}
+              </span>
               {apiStatus === 'connected' && (
-                <span className="text-xs bg-[#00D09C]/20 text-[#00D09C] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ml-1">Live</span>
+                <span className="text-xs bg-[#00D09C]/20 text-[#00D09C] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ml-1">
+                  Live
+                </span>
               )}
             </div>
-            <div className="flex gap-3 flex-shrink-0">
-              <Link href="/alerts" className="p-1.5 select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-                <Bell width={20} height={20} className="text-white" />
-              </Link>
-              <Link href="/settings" className="p-1.5 select-none" style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-                <Settings width={20} height={20} className="text-white" />
-              </Link>
-          </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {locations.length > 1 && (
+                <select
+                  aria-label="Switch saved location"
+                  value={activeLocation?.id || ''}
+                  onChange={(event) => {
+                    const nextId = event.target.value;
+                    setActiveLocation(nextId);
+                  }}
+                  className="bg-[#1A1A1A] border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#00D09C]"
+                >
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.customName?.trim() || location.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <div className="flex gap-3 flex-shrink-0">
+                <Link
+                  href="/alerts"
+                  className="p-1.5 select-none"
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                >
+                  <Bell width={20} height={20} className="text-white" />
+                </Link>
+                <Link
+                  href="/settings"
+                  className="p-1.5 select-none"
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                >
+                  <Settings width={20} height={20} className="text-white" />
+                </Link>
+              </div>
+            </div>
         </div>
       </header>
 

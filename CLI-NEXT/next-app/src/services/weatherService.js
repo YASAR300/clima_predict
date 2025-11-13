@@ -2,9 +2,11 @@
 const API_BASE = '/api/weather';
 
 const FALLBACK_LOCATION = {
-  lat: '19.0760',
-  lon: '72.8777',
-  name: 'Mumbai',
+  lat: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LAT || '19.0760',
+  lon: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LON || '72.8777',
+  name:
+    process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LABEL ||
+    'Mumbai, India',
 };
 
 function resolveLocation(location) {
@@ -19,6 +21,7 @@ function resolveLocation(location) {
       location.label ||
       location.city ||
       FALLBACK_LOCATION.name,
+    city: location.city || location.label || FALLBACK_LOCATION.name,
   };
 }
 

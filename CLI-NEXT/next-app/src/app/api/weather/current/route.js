@@ -1,14 +1,29 @@
 import { NextResponse } from 'next/server';
 
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '0248b76a1e11603cd1afcb3d2a90e830';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const DEFAULT_COORDS = {
+  lat: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LAT || '19.0760',
+  lon: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LON || '72.8777',
+  city: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LABEL || 'Mumbai',
+};
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const lat = searchParams.get('lat') || '19.0760';
-    const lon = searchParams.get('lon') || '72.8777';
-    const city = searchParams.get('city') || 'Mumbai';
+    const lat = searchParams.get('lat') || DEFAULT_COORDS.lat;
+    const lon = searchParams.get('lon') || DEFAULT_COORDS.lon;
+    const city = searchParams.get('city') || DEFAULT_COORDS.city;
+
+    if (!OPENWEATHER_API_KEY) {
+      return NextResponse.json(
+        {
+          error:
+            'OpenWeatherMap API key missing. Set OPENWEATHER_API_KEY in your environment variables.',
+        },
+        { status: 500 }
+      );
+    }
 
     // Fetch current weather
     const weatherUrl = `${OPENWEATHER_BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`;

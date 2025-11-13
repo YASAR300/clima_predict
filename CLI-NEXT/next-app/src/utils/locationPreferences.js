@@ -6,10 +6,10 @@ const STORAGE_KEY = 'clima:savedLocations';
 const ACTIVE_KEY = 'clima:activeLocationId';
 
 const FALLBACK_DEFAULT = {
-  id: 'default-mumbai',
-  label: 'Mumbai, India',
-  lat: '19.0760',
-  lon: '72.8777',
+  id: 'default-location',
+  label: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LABEL || 'Mumbai, India',
+  lat: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LAT || '19.0760',
+  lon: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LON || '72.8777',
 };
 
 export const defaultLocation = {

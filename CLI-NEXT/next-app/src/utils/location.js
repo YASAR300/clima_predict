@@ -29,15 +29,12 @@ export const getCurrentLocation = () => {
 
 export const getLocationName = async (lat, lon) => {
   try {
-    // Use reverse geocoding API (you can use OpenWeather geocoding or another service)
     const response = await fetch(
-      `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || '0248b76a1e11603cd1afcb3d2a90e830'}`
+      `/api/weather/geocode/reverse?lat=${lat}&lon=${lon}`
     );
     if (response.ok) {
       const data = await response.json();
-      if (data.length > 0) {
-        return data[0].name;
-      }
+      return data?.label || 'Unknown Location';
     }
     return 'Unknown Location';
   } catch (error) {
@@ -46,10 +43,18 @@ export const getLocationName = async (lat, lon) => {
   }
 };
 
-// Default location (Mumbai)
+const envDefault = {
+  label: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LABEL,
+  lat: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LAT,
+  lon: process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LON,
+};
+
+// Default location (configurable via env, falls back to Mumbai)
 export const defaultLocation = {
-  lat: '19.0760',
-  lon: '72.8777',
-  city: 'Mumbai',
+  lat: envDefault.lat || '19.0760',
+  lon: envDefault.lon || '72.8777',
+  city: envDefault.label || 'Mumbai, India',
+  label: envDefault.label || 'Mumbai, India',
+  id: 'default-location',
 };
 

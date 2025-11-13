@@ -13,7 +13,10 @@ import {
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const DEFAULT_CENTER = [19.076, 72.8777]; // Mumbai as a default focus
+const DEFAULT_CENTER = [
+  Number(process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LAT || 19.076),
+  Number(process.env.NEXT_PUBLIC_DEFAULT_LOCATION_LON || 72.8777),
+]; // Configurable default focus
 const DEFAULT_ZOOM = 6;
 const MAP_CONTAINER_ID = 'weather-map-container';
 const TILE_ATTRIBUTION =

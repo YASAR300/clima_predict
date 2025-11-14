@@ -67,6 +67,7 @@ export async function POST(request) {
     const payload = {
       emission_factor: {
         activity_id: 'electricity-energy_source_grid_mix',
+        data_version: '27.27',
         region,
       },
       parameters: {

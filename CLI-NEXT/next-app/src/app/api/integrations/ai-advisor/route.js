@@ -64,6 +64,7 @@ async function queryOpenAI({ prompt, context }) {
     body: JSON.stringify({
       model: DEFAULT_OPENAI_MODEL,
       temperature: 0.7,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -76,6 +77,7 @@ async function queryOpenAI({ prompt, context }) {
         },
       ],
     }),
+    cache: 'no-store',
   });
 
   if (!response.ok) {

@@ -55,11 +55,11 @@ export default function EditProfile() {
                             <div className="relative z-10">
                                 <div className="relative inline-block mb-6">
                                     <div className="bg-gradient-to-br from-[#00D09C] to-[#4D9FFF] rounded-[2.5rem] w-32 h-32 md:w-40 md:h-40 flex items-center justify-center border-4 border-white/10 shadow-2xl group-hover:scale-105 transition-transform duration-500">
-                                        <User width={64} height={64} className="text-white md:hidden" />
-                                        <User width={80} height={80} className="text-white hidden md:block" />
+                                        <IoPerson size={64} className="text-white md:hidden" />
+                                        <IoPerson size={80} className="text-white hidden md:block" />
                                     </div>
                                     <button className="absolute bottom-0 right-0 bg-[#0D0D0D] p-3 rounded-2xl border border-white/10 text-[#00D09C] hover:scale-110 transition-all shadow-xl">
-                                        <Camera width={20} height={20} />
+                                        <IoCamera size={20} />
                                     </button>
                                 </div>
                                 <h3 className="text-xl font-black text-white mb-2">{formData.name}</h3>
@@ -71,11 +71,11 @@ export default function EditProfile() {
                             <div className="text-[8px] font-black text-white/20 tracking-[0.4em] uppercase mb-4 ml-1">Account Security</div>
                             <button className="w-full py-4 px-6 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all text-left flex justify-between items-center group">
                                 Change Access Key
-                                <NavArrowRight width={16} height={16} className="text-white/20 group-hover:text-white transition-all" />
+                                <IoArrowBack size={16} className="text-white/20 group-hover:text-white transition-all" />
                             </button>
                             <button className="w-full py-4 px-6 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all text-left flex justify-between items-center group text-red-500">
                                 Terminate Records
-                                <NavArrowRight width={16} height={16} className="text-red-500/20 group-hover:text-red-500 transition-all" />
+                                <IoArrowBack size={16} className="text-red-500/20 group-hover:text-red-500 transition-all" />
                             </button>
                         </div>
                     </div>
@@ -85,11 +85,11 @@ export default function EditProfile() {
                         <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-8 md:p-12 border border-white/5">
                             <form onSubmit={handleSubmit} className="space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <FormField label="Personnel Identifier" name="name" value={formData.name} onChange={handleChange} icon={User} />
-                                    <FormField label="Communication Vector" name="email" value={formData.email} onChange={handleChange} icon={Mail} />
-                                    <FormField label="Mobile Telemetry" name="phone" value={formData.phone} onChange={handleChange} icon={Phone} />
-                                    <FormField label="Geospatial Hub" name="location" value={formData.location} onChange={handleChange} icon={Pin} />
-                                    <FormField label="Agronomic Expansion (Acres)" name="farmSize" value={formData.farmSize} onChange={handleChange} icon={Db} type="number" />
+                                    <FormField label="Personnel Identifier" name="name" value={formData.name} onChange={handleChange} icon={IoPerson} />
+                                    <FormField label="Communication Vector" name="email" value={formData.email} onChange={handleChange} icon={IoMail} />
+                                    <FormField label="Mobile Telemetry" name="phone" value={formData.phone} onChange={handleChange} icon={IoCall} />
+                                    <FormField label="Geospatial Hub" name="location" value={formData.location} onChange={handleChange} icon={IoLocation} />
+                                    <FormField label="Agronomic Expansion (Acres)" name="farmSize" value={formData.farmSize} onChange={handleChange} icon={IoServer} type="number" />
                                 </div>
 
                                 <div className="space-y-3">
@@ -103,7 +103,7 @@ export default function EditProfile() {
                                             className="w-full bg-white/5 border border-white/5 rounded-3xl px-6 py-5 text-sm font-black text-white placeholder-white/20 outline-none focus:bg-white/10 focus:border-[#00D09C]/30 transition-all resize-none uppercase"
                                             placeholder="Enter crop list…"
                                         />
-                                        <OrganicFood className="absolute top-5 right-6 text-white/10" width={24} height={24} />
+                                        <IoLeaf className="absolute top-5 right-6 text-white/10" size={24} />
                                     </div>
                                 </div>
 
@@ -144,7 +144,7 @@ function FormField({ label, name, value, onChange, icon: Icon, type = "text" }) 
                     onChange={onChange}
                     className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-sm font-black text-white placeholder-white/20 outline-none group-hover:bg-white/[0.08] focus:bg-white/10 focus:border-[#00D09C]/30 transition-all uppercase"
                 />
-                <Icon className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#00D09C] transition-colors" width={18} height={18} />
+                <Icon className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#00D09C] transition-colors" size={18} />
             </div>
         </div>
     );

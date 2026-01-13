@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
 
                 <footer className="text-center">
                     <Link href="/auth/login" className="inline-flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] hover:text-white transition-colors">
-                        <NavArrowRight className="rotate-180" width={14} height={14} /> Back to Entry
+                        <IoArrowBack size={14} /> Back to Entry
                     </Link>
                 </footer>
             </div>

@@ -23,7 +23,7 @@ export default function Insurance() {
       status: 'Active',
       validUntil: 'March 31, 2026',
       crops: ['Wheat', 'Cotton', 'Rice'],
-      icon: OrganicFood,
+      icon: IoLeaf,
       color: '#00D09C',
     },
     {
@@ -35,7 +35,7 @@ export default function Insurance() {
       status: 'Active',
       validUntil: 'December 31, 2025',
       crops: ['Sugarcane'],
-      icon: Shield,
+      icon: IoShieldCheckmark,
       color: '#4D9FFF',
     },
   ];
@@ -64,7 +64,7 @@ export default function Insurance() {
       <div className="w-full max-w-6xl mx-auto px-6 md:px-0">
         <header className="pt-8 pb-4 flex items-center gap-4 md:mb-10">
           <Link href="/profile" className="p-3 bg-white/5 rounded-2xl border border-white/5 active:scale-90 transition-all hover:bg-white/10 uppercase">
-            <NavArrowRight className="rotate-180" width={20} height={20} />
+            <IoArrowBack size={20} />
           </Link>
           <div>
             <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white">Indemnity Portfolio</h1>
@@ -80,7 +80,7 @@ export default function Insurance() {
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
                 <div className="flex items-center gap-8">
                   <div className="p-8 bg-white/20 backdrop-blur-xl rounded-[2.5rem] border border-white/30 hidden md:block">
-                    <Shield width={64} height={64} className="text-white" />
+                    <IoShieldCheckmark size={64} className="text-white" />
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-[#0D0D0D]/40 tracking-[0.4em] mb-4">Total Aggregate Coverage</div>
@@ -107,7 +107,7 @@ export default function Insurance() {
             <div className="flex items-center justify-between mb-2 px-1">
               <h2 className="text-[10px] font-black text-white/30 tracking-[0.4em] uppercase">Active Underwriting</h2>
               <button className="flex items-center gap-2 text-[10px] font-black text-[#00D09C] tracking-widest">
-                <Plus width={16} height={16} />
+                <IoAdd size={16} />
                 New Policy
               </button>
             </div>
@@ -119,7 +119,7 @@ export default function Insurance() {
                     <div className="flex items-start justify-between mb-8">
                       <div className="flex items-center gap-6">
                         <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-white/20 group-hover:text-white transition-colors" style={{ color: policy.color }}>
-                          <Icon width={28} height={28} />
+                          <Icon size={28} />
                         </div>
                         <div>
                           <div className="text-xl font-black text-white mb-1 uppercase tracking-tight">{policy.name}</div>
@@ -184,7 +184,7 @@ export default function Insurance() {
                   <div className="flex items-center justify-between">
                     <div className="text-3xl font-black text-[#00D09C] tracking-tighter">{claim.amount}</div>
                     <div className="p-3 bg-white/5 rounded-xl text-white/10 group-hover:text-white transition-colors">
-                      <Db width={18} height={18} />
+                      <IoServer size={18} />
                     </div>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function Insurance() {
 
               <button className="w-full bg-white/5 border border-dashed border-white/10 rounded-[2rem] py-8 flex flex-col items-center justify-center group hover:bg-white/10 transition-all gap-4">
                 <div className="p-4 bg-white/5 rounded-2xl text-white/20 group-hover:text-[#00D09C] transition-all">
-                  <Plus width={32} height={32} />
+                  <IoAdd size={32} />
                 </div>
                 <div className="text-[10px] font-black text-white/20 tracking-[0.3em] uppercase group-hover:text-white transition-all">Initiate New Indemnity Claim</div>
               </button>

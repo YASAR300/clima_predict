@@ -39,7 +39,7 @@ export default function EditProfile() {
                 {/* Header */}
                 <header className="pt-8 pb-4 flex items-center gap-4 md:mb-10">
                     <Link href="/profile" className="p-3 bg-white/5 rounded-2xl border border-white/5 active:scale-90 transition-all hover:bg-white/10">
-                        <NavArrowRight className="rotate-180" width={20} height={20} />
+                        <IoArrowBack size={20} />
                     </Link>
                     <div>
                         <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white">Identity Management</h1>

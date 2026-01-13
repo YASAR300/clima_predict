@@ -1,21 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
-    domains: ['api.weatherapi.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.weatherapi.com',
+      },
+    ],
   },
-  // Disable PWA for build stability
   experimental: {
     workerThreads: false,
     cpus: 1,
-  },
-  // Optimize build
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: false,
   },
 };
 

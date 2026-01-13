@@ -8,14 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  crops     Crop[]
-  chats     Chat[]
+  id           String            @id @default(uuid())
+  email        String            @unique
+  password     String
+  name         String?
+  phone        String?
+  location     String?
+  farmSize     String?
+  crops        Crop[]
+  chats        Chat[]
+  notifications Notification[]
+  chatMessages ChatMessage[]
+  preferences  UserPreferences?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 }
 
 model Crop {
@@ -39,6 +45,41 @@ model Chat {
   message   String
   response  String
   createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // 'weather', 'alert', 'crop', 'system'
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  isAI      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model UserPreferences {
+  id                    String   @id @default(uuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id])
+  weatherAlerts         Boolean  @default(true)
+  cropHealth            Boolean  @default(true)
+  marketPrices          Boolean  @default(true)
+  communityUpdates      Boolean  @default(true)
+  emailNotifications    Boolean  @default(true)
+  pushNotifications     Boolean  @default(true)
+  smsNotifications      Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model Alert {

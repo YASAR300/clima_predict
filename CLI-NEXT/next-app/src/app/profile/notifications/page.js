@@ -1,35 +1,80 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  NavArrowRight,
-  Bell,
-  WarningTriangle,
-  MediaPlaylist,
-  GraphUp,
-  Journal,
-  Shield,
-  User,
-  OrganicFood,
-  Pin,
-  Database
-} from 'iconoir-react';
+  IoArrowBack,
+  IoBell,
+  IoWarning,
+  IoStatsChart,
+  IoNewspaper,
+  IoShieldCheckmark,
+  IoPerson,
+  IoLeaf,
+  IoLocation,
+  IoServer
+} from 'react-icons/io5';
 
-function Notifications() {
+export default function Notifications() {
   const [settings, setSettings] = useState({
     weatherAlerts: true,
-    sensorAlerts: true,
+    cropHealth: true,
     marketPrices: false,
     communityUpdates: true,
-    newsUpdates: false,
-    insuranceReminders: true,
-    cropHealthAlerts: true,
-    aiRecommendations: false,
+    emailNotifications: true,
+    pushNotifications: true,
+    smsNotifications: false,
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const toggleSetting = (key) => {
-    setSettings({ ...settings, [key]: !settings[key] });
+  // Fetch preferences on mount
+  useEffect(() => {
+    fetchPreferences();
+  }, []);
+
+  const fetchPreferences = async () => {
+    try {
+      const response = await fetch('/api/user/preferences');
+      const data = await response.json();
+      if (data.preferences) {
+        setSettings({
+          weatherAlerts: data.preferences.weatherAlerts,
+          cropHealth: data.preferences.cropHealth,
+          marketPrices: data.preferences.marketPrices,
+          communityUpdates: data.preferences.communityUpdates,
+          emailNotifications: data.preferences.emailNotifications,
+          pushNotifications: data.preferences.pushNotifications,
+          smsNotifications: data.preferences.smsNotifications,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch preferences:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleSetting = async (key) => {
+    const newValue = !settings[key];
+
+    // Optimistic update
+    setSettings({ ...settings, [key]: newValue });
+    setIsSaving(true);
+
+    try {
+      await fetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: newValue }),
+      });
+    } catch (error) {
+      console.error('Failed to update preference:', error);
+      // Revert on error
+      setSettings({ ...settings, [key]: !newValue });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const notificationCategories = [
@@ -40,71 +85,59 @@ function Notifications() {
           key: 'weatherAlerts',
           label: 'Weather Alerts',
           description: 'Severe weather warnings and forecasts',
-          icon: WarningTriangle,
+          icon: IoWarning,
           color: '#FF6B35',
         },
         {
-          key: 'sensorAlerts',
-          label: 'Sensor Thresholds',
-          description: 'IoT sensor threshold notifications',
-          icon: Pin,
+          key: 'cropHealth',
+          label: 'Crop Health',
+          description: 'Crop disease and health notifications',
+          icon: IoLeaf,
+          color: '#00D09C',
+        },
+      ],
+    },
+    {
+      title: 'Market Intelligence',
+      items: [
+        {
+          key: 'marketPrices',
+          label: 'Market Prices',
+          description: 'Price fluctuations and market trends',
+          icon: IoStatsChart,
+          color: '#4D9FFF',
+        },
+        {
+          key: 'communityUpdates',
+          label: 'Community Updates',
+          description: 'Posts and discussions from farmers',
+          icon: IoNewspaper,
           color: '#9D4EDD',
         },
       ],
     },
     {
-      title: 'Agronomic Insights',
+      title: 'Delivery Channels',
       items: [
         {
-          key: 'cropHealthAlerts',
-          label: 'Health Anomaly',
-          description: 'Crop health status updates',
-          icon: OrganicFood,
-          color: '#00D09C',
-        },
-        {
-          key: 'aiRecommendations',
-          label: 'AI Insights',
-          description: 'Personalized farming recommendations',
-          icon: GraphUp,
-          color: '#4D9FFF',
-        },
-      ],
-    },
-    {
-      title: 'Operational Assets',
-      items: [
-        {
-          key: 'marketPrices',
-          label: 'Market Liquidity',
-          description: 'Daily crop price updates',
-          icon: GraphUp,
+          key: 'emailNotifications',
+          label: 'Email Notifications',
+          description: 'Receive updates via email',
+          icon: IoServer,
           color: '#FFC857',
         },
         {
-          key: 'insuranceReminders',
-          label: 'Indemnity Renewal',
-          description: 'Policy renewals and claims',
-          icon: Shield,
-          color: '#4D9FFF',
-        },
-      ],
-    },
-    {
-      title: 'Intelligence Stream',
-      items: [
-        {
-          key: 'communityUpdates',
-          label: 'Social Dispatch',
-          description: 'New posts and discussions',
-          icon: User,
+          key: 'pushNotifications',
+          label: 'Push Notifications',
+          description: 'Browser push notifications',
+          icon: IoBell,
           color: '#00D09C',
         },
         {
-          key: 'newsUpdates',
-          label: 'Editorial News',
-          description: 'Agriculture news and articles',
-          icon: Journal,
+          key: 'smsNotifications',
+          label: 'SMS Notifications',
+          description: 'Text message alerts',
+          icon: IoLocation,
           color: '#FF6B35',
         },
       ],
@@ -112,89 +145,80 @@ function Notifications() {
   ];
 
   return (
-    <div className="min-h-screen text-white pb-12 uppercase">
+    <div className="min-h-screen text-white pb-12">
       <div className="w-full max-w-6xl mx-auto px-6 md:px-0">
+        {/* Header */}
         <header className="pt-8 pb-4 flex items-center gap-4 md:mb-10">
-          <Link href="/profile" className="p-3 bg-white/5 rounded-2xl border border-white/5 active:scale-90 transition-all hover:bg-white/10 uppercase">
-            <NavArrowRight className="rotate-180" width={20} height={20} />
+          <Link href="/profile" className="p-3 bg-white/5 rounded-2xl border border-white/5 active:scale-90 transition-all hover:bg-white/10">
+            <IoArrowBack size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white">Alert Matrix</h1>
-            <p className="hidden md:block text-white/40 text-sm font-medium uppercase tracking-widest mt-1">Notification vectors and communication protocols</p>
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white">Notification Control</h1>
+            <p className="hidden md:block text-white/40 text-sm font-medium uppercase tracking-widest mt-1">
+              Manage your alert preferences and delivery channels
+            </p>
           </div>
         </header>
 
-        <div className="mb-12">
-          <div className="bg-gradient-to-br from-[#9D4EDD] to-[#4D9FFF] rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
-            <div className="relative z-10 flex items-center gap-10">
-              <div className="p-8 bg-white/20 backdrop-blur-xl rounded-[2.5rem] border border-white/30">
-                <Bell width={48} height={48} className="text-white" />
-              </div>
-              <div>
-                <div className="text-[10px] font-black text-[#0D0D0D]/40 tracking-[0.4em] mb-2">Operational Channels</div>
-                <div className="text-4xl md:text-6xl font-black text-[#0D0D0D] tracking-tighter">
-                  {Object.values(settings).filter(Boolean).length} / {Object.keys(settings).length}
-                </div>
-                <div className="text-xs font-black text-[#0D0D0D]/60 tracking-widest mt-1">Active Synchronization Streams</div>
-              </div>
-            </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-white/40 text-sm font-bold uppercase tracking-widest">Loading preferences...</div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {notificationCategories.map((category, idx) => (
-            <div key={idx} className="space-y-6">
-              <h2 className="text-[10px] font-black text-white/30 tracking-[0.4em] ml-2 uppercase">{category.title}</h2>
-              <div className="space-y-4">
-                {category.items.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={item.key}
-                      onClick={() => toggleSetting(item.key)}
-                      className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-6 md:p-8 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-6">
-                        <div
-                          className="rounded-2xl p-4 md:p-5 bg-white/5 border border-white/5 group-hover:scale-105 transition-transform"
-                          style={{ color: item.color }}
-                        >
-                          <Icon width={24} height={24} />
-                        </div>
-                        <div>
-                          <div className="text-lg font-black text-white mb-1 uppercase tracking-tight">
-                            {item.label}
-                          </div>
-                          <div className="text-[10px] font-bold text-white/30 uppercase tracking-tighter">{item.description}</div>
-                        </div>
-                      </div>
-
-                      <button
-                        className={`relative w-14 h-8 rounded-full transition-all duration-500 p-1 border ${settings[item.key] ? 'bg-[#00D09C] border-[#00D09C]' : 'bg-white/5 border-white/10'
-                          }`}
-                      >
-                        <div
-                          className={`w-6 h-6 rounded-lg bg-white shadow-xl transition-all duration-500 transform ${settings[item.key] ? 'translate-x-6 rotate-90 scale-100' : 'translate-x-0 scale-75 opacity-20'
-                            }`}
-                        />
-                      </button>
-                    </div>
-                  );
-                })}
+        ) : (
+          <main className="space-y-8">
+            {isSaving && (
+              <div className="bg-[#00D09C]/10 border border-[#00D09C]/20 rounded-2xl p-4 text-center">
+                <p className="text-[10px] font-black text-[#00D09C] uppercase tracking-widest">Saving preferences...</p>
               </div>
-            </div>
-          ))}
-        </div>
+            )}
 
-        <div className="mt-12 flex justify-center">
-          <button className="w-full bg-gradient-to-r from-[#00D09C] to-[#4D9FFF] rounded-[2rem] py-5 text-[#0D0D0D] font-black tracking-[0.2em] text-xs hover:opacity-90 shadow-2xl active:scale-95 transition-all uppercase">
-            Execute Synchronization
-          </button>
-        </div>
+            {notificationCategories.map((category) => (
+              <div key={category.title} className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/5">
+                <h2 className="text-[10px] font-black text-white/20 tracking-[0.4em] uppercase mb-6">{category.title}</h2>
+                <div className="space-y-4">
+                  {category.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={item.key}
+                        className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/[0.08] transition-all group"
+                      >
+                        <div className="flex items-center gap-6">
+                          <div className="p-4 rounded-2xl bg-white/5" style={{ color: item.color }}>
+                            <Icon size={28} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-black text-white mb-1 uppercase tracking-tight">{item.label}</h3>
+                            <p className="text-xs text-white/40 font-medium">{item.description}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleSetting(item.key)}
+                          disabled={isSaving}
+                          className={`relative w-16 h-8 rounded-full transition-all ${settings[item.key] ? 'bg-gradient-to-r from-[#00D09C] to-[#4D9FFF]' : 'bg-white/10'
+                            }`}
+                        >
+                          <div
+                            className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-lg transition-transform ${settings[item.key] ? 'translate-x-8' : 'translate-x-0'
+                              }`}
+                          />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Save Confirmation */}
+            <div className="bg-white/5 backdrop-blur-md rounded-[2rem] p-6 border border-white/5 text-center">
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">
+                Preferences are automatically saved
+              </p>
+            </div>
+          </main>
+        )}
       </div>
     </div>
   );
 }
-
-export default Notifications;

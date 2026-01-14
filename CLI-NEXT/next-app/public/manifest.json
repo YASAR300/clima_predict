@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "ClimaPredict - Weather Forecast for Farmers",
   "short_name": "ClimaPredict",
   "start_url": "/",
@@ -9,7 +10,11 @@
   "description": "AI-powered weather forecasting and farming recommendations",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
-  "categories": ["weather", "productivity", "utilities"],
+  "categories": [
+    "weather",
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "/icons/Icon-192.png",
@@ -35,6 +40,7 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "shortcuts": [],
+  "screenshots": []
 }
-

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   IoArrowBack,
-  IoBell,
+  IoNotifications,
   IoWarning,
   IoStatsChart,
   IoNewspaper,
@@ -130,7 +130,7 @@ export default function Notifications() {
           key: 'pushNotifications',
           label: 'Push Notifications',
           description: 'Browser push notifications',
-          icon: IoBell,
+          icon: IoNotifications,
           color: '#00D09C',
         },
         {

@@ -20,6 +20,14 @@ export default function InstallPrompt() {
   });
 
   useEffect(() => {
+    // Check if already dismissed today
+    const dismissedDate = window.localStorage.getItem('pwa-prompt-dismissed-date');
+    const today = new Date().toDateString();
+
+    if (dismissedDate === today) {
+      return; // Don't show if dismissed today
+    }
+
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
       // Prevent the mini-infobar from appearing on mobile
@@ -27,10 +35,13 @@ export default function InstallPrompt() {
       // Stash the event so it can be triggered later
       setDeferredPrompt(e);
 
-      // Show our custom install prompt after a short delay
+      // Show immediately on mobile, after 2 seconds on desktop
+      const isMobile = window.innerWidth < 768;
+      const delay = isMobile ? 500 : 2000; // 0.5s on mobile, 2s on desktop
+
       setTimeout(() => {
         setShowPrompt(true);
-      }, 3000); // Show after 3 seconds
+      }, delay);
     };
 
     const handleAppInstalled = () => {
@@ -77,16 +88,13 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Remember dismissal for this session
-    window.sessionStorage.setItem('pwa-prompt-dismissed', 'true');
+    // Remember dismissal for today
+    const today = new Date().toDateString();
+    window.localStorage.setItem('pwa-prompt-dismissed-date', today);
   };
 
-  // Don't show if already installed or if dismissed in this session
+  // Don't show if already installed
   if (isInstalled || !showPrompt || !deferredPrompt) {
-    return null;
-  }
-
-  if (window.sessionStorage.getItem('pwa-prompt-dismissed') === 'true') {
     return null;
   }
 
@@ -108,32 +116,33 @@ export default function InstallPrompt() {
           animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}} />
-      <div className="fixed bottom-28 left-0 right-0 z-50 px-6 install-prompt-animate">
-        <div className="max-w-md mx-auto bg-black/60 backdrop-blur-2xl rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative overflow-hidden">
+      <div className="fixed bottom-32 md:bottom-28 left-0 right-0 z-50 px-4 md:px-6 install-prompt-animate">
+        <div className="max-w-md mx-auto bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-2xl rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative overflow-hidden">
           {/* Decorative glow */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#00D09C]/10 rounded-full blur-2xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00D09C]/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#4D9FFF]/10 rounded-full blur-2xl" />
 
-          <div className="flex items-start gap-4 relative z-10">
-            <div className="bg-[#00D09C]/10 rounded-2xl p-3.5 flex-shrink-0 border border-[#00D09C]/20">
-              <SmartphoneDevice width={28} height={28} className="text-[#00D09C]" />
+          <div className="flex items-start gap-3 md:gap-4 relative z-10">
+            <div className="bg-gradient-to-br from-[#00D09C] to-[#4D9FFF] rounded-2xl p-3 md:p-3.5 flex-shrink-0 shadow-lg shadow-[#00D09C]/20">
+              <SmartphoneDevice width={24} height={24} className="text-white md:w-7 md:h-7" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-black text-white mb-1 tracking-tight">
-                Premium Extension
+              <h3 className="text-base md:text-lg font-black text-white mb-1 tracking-tight uppercase">
+                Install App
               </h3>
-              <p className="text-xs text-white/50 mb-5 leading-relaxed font-medium">
-                Add ClimaPredict to your home screen for lightning-fast access and native experience.
+              <p className="text-xs text-white/60 mb-4 md:mb-5 leading-relaxed font-medium">
+                Add ClimaPredict to your home screen for instant access and offline support.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-2 md:gap-3">
                 <button
                   onClick={handleInstallClick}
-                  className="flex-1 bg-gradient-to-r from-[#00D09C] to-[#4D9FFF] text-[#0D0D0D] font-bold py-3.5 px-6 rounded-2xl active:scale-95 transition-all shadow-lg shadow-[#00D09C]/20"
+                  className="flex-1 bg-gradient-to-r from-[#00D09C] to-[#4D9FFF] text-[#0D0D0D] font-black text-sm py-3 md:py-3.5 px-4 md:px-6 rounded-xl md:rounded-2xl active:scale-95 transition-all shadow-lg shadow-[#00D09C]/30 uppercase tracking-wide touch-target"
                 >
-                  Install Now
+                  Install
                 </button>
                 <button
                   onClick={handleDismiss}
-                  className="px-6 py-3.5 text-white/40 hover:text-white/70 transition-colors font-bold text-sm uppercase tracking-widest"
+                  className="px-4 md:px-6 py-3 md:py-3.5 text-white/40 hover:text-white/70 transition-colors font-bold text-xs md:text-sm uppercase tracking-widest touch-target"
                 >
                   Later
                 </button>
@@ -141,10 +150,10 @@ export default function InstallPrompt() {
             </div>
             <button
               onClick={handleDismiss}
-              className="text-white/20 hover:text-white/50 transition-colors flex-shrink-0 mt-1"
+              className="text-white/20 hover:text-white/50 transition-colors flex-shrink-0 mt-1 p-2 touch-target"
               aria-label="Close"
             >
-              <Xmark width={18} height={18} />
+              <Xmark width={16} height={16} className="md:w-4 md:h-4" />
             </button>
           </div>
         </div>

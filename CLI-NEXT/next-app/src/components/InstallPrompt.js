@@ -17,6 +17,20 @@ export default function InstallPrompt() {
       return;
     }
 
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').then(
+          function (registration) {
+            console.log('PWA: Service Worker registration successful with scope: ', registration.scope);
+          },
+          function (err) {
+            console.log('PWA: Service Worker registration failed: ', err);
+          }
+        );
+      });
+    }
+
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
       console.log('PWA: beforeinstallprompt event fired - browser will show native prompt');

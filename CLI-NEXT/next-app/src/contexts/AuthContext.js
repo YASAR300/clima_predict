@@ -11,13 +11,20 @@ export function AuthProvider({ children }) {
     const router = useRouter();
 
     useEffect(() => {
+        if (typeof window === 'undefined') {
+            setLoading(false);
+            return;
+        }
+
         // Check if user is logged in on mount
         const token = localStorage.getItem('auth_token');
         const userData = localStorage.getItem('user');
 
         if (token && userData) {
             try {
-                setUser(JSON.parse(userData));
+                const parsedUser = JSON.parse(userData);
+                console.log('Auth: Restored user from localStorage', parsedUser);
+                setUser(parsedUser);
             } catch (error) {
                 console.error('Failed to parse user data:', error);
                 localStorage.removeItem('auth_token');

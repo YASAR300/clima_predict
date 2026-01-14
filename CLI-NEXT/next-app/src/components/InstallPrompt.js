@@ -20,6 +20,8 @@ export default function InstallPrompt() {
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     // Check if already dismissed today
     const dismissedDate = window.localStorage.getItem('pwa-prompt-dismissed-date');
     const today = new Date().toDateString();
@@ -30,6 +32,7 @@ export default function InstallPrompt() {
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
+      console.log('PWA: beforeinstallprompt event fired');
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later
@@ -40,11 +43,13 @@ export default function InstallPrompt() {
       const delay = isMobile ? 500 : 2000; // 0.5s on mobile, 2s on desktop
 
       setTimeout(() => {
+        console.log('PWA: Showing install prompt');
         setShowPrompt(true);
       }, delay);
     };
 
     const handleAppInstalled = () => {
+      console.log('PWA: App installed');
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);

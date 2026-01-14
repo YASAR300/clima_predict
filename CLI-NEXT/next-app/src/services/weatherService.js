@@ -30,11 +30,18 @@ export const weatherService = {
   async getCurrentWeather(location) {
     const resolved = resolveLocation(location);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
       const response = await fetch(
         `${API_BASE}/current?lat=${resolved.lat}&lon=${resolved.lon}&city=${encodeURIComponent(
           resolved.name
-        )}`
+        )}`,
+        { signal: controller.signal }
       );
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         throw new Error('Failed to fetch weather');
       }
@@ -68,9 +75,16 @@ export const weatherService = {
   async getForecast(location) {
     const resolved = resolveLocation(location);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
       const response = await fetch(
-        `${API_BASE}/forecast?lat=${resolved.lat}&lon=${resolved.lon}`
+        `${API_BASE}/forecast?lat=${resolved.lat}&lon=${resolved.lon}`,
+        { signal: controller.signal }
       );
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         throw new Error('Failed to fetch forecast');
       }

@@ -1,20 +1,14 @@
 {
-  "id": "/?source=pwa",
-  "name": "ClimaPredict - AI Weather",
+  "id": "clima-predict-pwa-v1",
+  "name": "ClimaPredict - Weather",
   "short_name": "ClimaPredict",
-  "start_url": "/?source=pwa",
+  "description": "AI-powered weather forecasting for farmers",
+  "start_url": "/?pwa=true",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0D0D0D",
   "theme_color": "#00D09C",
-  "description": "AI-powered weather forecasting and farming recommendations",
   "orientation": "portrait-primary",
-  "prefer_related_applications": false,
-  "categories": [
-    "weather",
-    "productivity",
-    "utilities"
-  ],
   "icons": [
     {
       "src": "/icons/Icon-192.png",
@@ -41,6 +35,9 @@
       "purpose": "maskable"
     }
   ],
-  "shortcuts": [],
-  "screenshots": []
+  "categories": [
+    "weather",
+    "productivity"
+  ],
+  "prefer_related_applications": false
 }

@@ -17,10 +17,23 @@ export default function InstallPrompt() {
       return;
     }
 
+    // Check if user dismissed the prompt today
+    const dismissed = localStorage.getItem('pwa-prompt-dismissed');
+    if (dismissed) {
+      // Option: Auto-expire after 3 days if you want to show it again later
+      const dismissalDate = new Date(dismissed);
+      const now = new Date();
+      const diffDays = Math.ceil(Math.abs(now - dismissalDate) / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 7) { // Don't show for 7 days if dismissed
+        return;
+      }
+    }
+
     // Robust Service Worker Registration
     const registerSW = () => {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('/service-worker.js')
           .then((reg) => {
             console.log('PWA: Service Worker registered with scope:', reg.scope);
             // Check for updates
@@ -121,7 +134,10 @@ export default function InstallPrompt() {
 
         <div className="flex items-center gap-2 relative z-10">
           <button
-            onClick={() => setShowPrompt(false)}
+            onClick={() => {
+              setShowPrompt(false);
+              localStorage.setItem('pwa-prompt-dismissed', new Date().toISOString());
+            }}
             className="p-3 text-white/20 hover:text-white/50 transition-colors rounded-xl"
             aria-label="Dismiss"
           >

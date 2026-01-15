@@ -63,7 +63,7 @@ export default function WeatherDetails() {
           </Link>
           <div>
             <h1 className="text-2xl md:text-4xl font-black tracking-tight">Weather Deep-Dive</h1>
-            <p className="hidden md:block text-white/40 text-sm font-medium uppercase tracking-widest mt-1">Detailed atmospheric parameters for {activeLocation}</p>
+            <p className="hidden md:block text-white/40 text-sm font-medium uppercase tracking-widest mt-1">Detailed atmospheric parameters for {activeLocation.label}</p>
           </div>
         </header>
 

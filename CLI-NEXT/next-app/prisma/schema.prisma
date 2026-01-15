@@ -16,12 +16,15 @@ model User {
   location     String?
   farmSize     String?
   crops        Crop[]
-  chats        Chat[]
-  notifications Notification[]
-  chatMessages ChatMessage[]
-  preferences  UserPreferences?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  chats             Chat[]
+  notifications     Notification[]
+  chatMessages      ChatMessage[]
+  preferences       UserPreferences?
+  ownedGroups       CommunityGroup[] @relation("OwnedGroups")
+  groupMemberships GroupMember[]
+  posts             Post[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model Crop {
@@ -58,12 +61,59 @@ model Notification {
   createdAt DateTime @default(now())
 }
 
-model ChatMessage {
-  id        String   @id @default(uuid())
+model CommunityGroup {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  ownerId     String
+  owner       User     @relation("OwnedGroups", fields: [ownerId], references: [id])
+  channels    Channel[]
+  members     GroupMember[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GroupMember {
+  id        String         @id @default(uuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  message   String
-  isAI      Boolean  @default(false)
+  user      User           @relation(fields: [userId], references: [id])
+  role      String         @default("MEMBER") // "OWNER", "ADMIN", "MEMBER"
+  createdAt DateTime       @default(now())
+}
+
+model Channel {
+  id        String         @id @default(uuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id])
+  name      String
+  type      String         @default("TEXT") // "TEXT", "VOICE"
+  messages  ChatMessage[]
+  createdAt DateTime       @default(now())
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  channelId  String?
+  channel    Channel? @relation(fields: [channelId], references: [id])
+  message    String?
+  audioUrl   String?
+  isAI       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  location  String?
+  likes     Int      @default(0)
+  comments  Int      @default(0)
   createdAt DateTime @default(now())
 }
 

@@ -2,6 +2,7 @@ import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
+import BeamsClient from "@/components/BeamsClient";
 
 export const metadata = {
   title: "ClimaPredict - Weather Forecast for Farmers",
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
         </div>
 
         <AuthProvider>
+          <BeamsClient />
           <ConditionalLayout>
             {children}
             <InstallPrompt />

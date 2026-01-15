@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clima-predict-v2';
+﻿const CACHE_NAME = 'clima-predict-v3';
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -25,8 +25,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Basic fetch handler to satisfy Chrome's PWA installability requirements
-    // This provides a network-first strategy for the start URL
+    // Skip non-GET requests and browser extensions
+    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
+
+    // Handle navigation requests
     if (event.request.mode === 'navigate') {
         event.respondWith(
             fetch(event.request).catch(() => {
@@ -36,9 +38,17 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Skip API and uploads from caching
+    if (event.request.url.includes('/api/') || event.request.url.includes('/uploads/')) {
+        return;
+    }
+
+    // Default fetch strategy: Cache falling back to network
     event.respondWith(
         caches.match(event.request).then((response) => {
             return response || fetch(event.request);
         })
     );
 });
+
+importScripts("https://js.pusher.com/beams/service-worker.js");

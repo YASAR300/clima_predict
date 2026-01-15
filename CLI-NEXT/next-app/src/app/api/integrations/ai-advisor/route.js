@@ -147,7 +147,7 @@ async function queryHuggingFace({ prompt, context }) {
 async function queryGemini({ prompt, context }) {
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const systemContext = "You are an AI weather and climate advisor. Provide concise, actionable guidance backed by the provided data.";
     const fullPrompt = `${systemContext}\n\n${context ? `Context: ${context}\n\n` : ''}User Query: ${prompt}`;

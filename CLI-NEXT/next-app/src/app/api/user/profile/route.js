@@ -13,7 +13,6 @@ export async function GET(req) {
             where: { id: userId },
             include: {
                 crops: true,
-                preferences: true,
             },
         });
 
@@ -31,7 +30,6 @@ export async function GET(req) {
                 location: user.location,
                 farmSize: user.farmSize,
                 cropsCount: user.crops.length,
-                preferences: user.preferences,
                 createdAt: user.createdAt,
             },
         });

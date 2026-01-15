@@ -278,7 +278,7 @@ export default function ChatWindow({ activeChannel, user }) {
     return (
         <div className="flex-1 flex flex-col bg-[#0D0D0D] h-full overflow-hidden relative">
             {/* Channel Header */}
-            <header className="h-16 border-b border-white/5 px-6 flex items-center justify-between bg-[#0D0D0D]/50 backdrop-blur-xl z-20">
+            <header className="h-14 md:h-16 border-b border-white/5 px-4 md:px-6 flex items-center justify-between bg-[#0D0D0D]/50 backdrop-blur-xl z-20 pl-16 md:pl-6">
                 <div className="flex items-center gap-3">
                     <span className="text-[#00D09C] text-xl font-bold">#</span>
                     <h2 className="text-sm font-black text-white uppercase tracking-widest">{activeChannel.name}</h2>

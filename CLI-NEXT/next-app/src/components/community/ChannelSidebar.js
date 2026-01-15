@@ -44,15 +44,15 @@ export default function ChannelSidebar({ activeGroup, activeChannel, onSelectCha
                             <button
                                 key={channel.id}
                                 onClick={() => onSelectChannel(channel)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${activeChannel?.id === channel.id
+                                className={`w-full flex items-center gap-3 px-3 py-3 md:py-2.5 rounded-xl transition-all group ${activeChannel?.id === channel.id
                                     ? 'bg-white/10 text-white'
                                     : 'text-white/40 hover:bg-white/5 hover:text-white/70'
                                     }`}
                             >
-                                <span className={activeChannel?.id === channel.id ? 'text-[#00D09C]' : 'opacity-50'}>
+                                <span className={`text-lg md:text-base ${activeChannel?.id === channel.id ? 'text-[#00D09C]' : 'opacity-50'}`}>
                                     {CHANNEL_ICONS[channel.name] || CHANNEL_ICONS.DEFAULT}
                                 </span>
-                                <span className="text-xs font-bold uppercase tracking-wider truncate">{channel.name}</span>
+                                <span className="text-sm md:text-xs font-bold uppercase tracking-wider truncate">{channel.name}</span>
                                 {channel.name === 'weather' && (
                                     <div className="ml-auto w-2 h-2 bg-[#FFC857] rounded-full" title="New Alert" />
                                 )}

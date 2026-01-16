@@ -145,6 +145,11 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
         }
     };
 
+    const playAudio = (url) => {
+        const audio = new Audio(url);
+        audio.play().catch(e => console.error('Playback failed:', e));
+    };
+
     const sendAudio = async (blob) => {
         setIsSending(true);
         try {
@@ -238,11 +243,6 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
 
             setReplyingTo(null);
 
-            const pusher = getPusherClient();
-            if (pusher) {
-                pusher.trigger(`presence-channel-${activeChannel.id}`, 'new-message', optimisticMessage);
-            }
-
             if (text.includes('@AI')) handleAICall(text);
         } catch (error) {
             setMessages((prev) => prev.filter(m => m.id !== optimisticMessage.id));
@@ -282,7 +282,22 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
         const file = e.target.files[0];
         if (!file) return;
 
+        const fileType = file.type.startsWith('image') ? 'image' : (file.type.startsWith('video') ? 'video' : 'file');
+        const optimisticId = 'temp-' + Date.now();
+
+        const optimisticMessage = {
+            id: optimisticId,
+            userId: user?.id,
+            message: '',
+            fileUrl: URL.createObjectURL(file), // Local preview
+            fileType,
+            createdAt: new Date().toISOString(),
+            user: { id: user?.id, name: user?.name || 'Farmer' }
+        };
+
+        setMessages((prev) => [...prev, optimisticMessage]);
         setIsSending(true);
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('extension', file.name.split('.').pop());
@@ -301,14 +316,15 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                     body: JSON.stringify({
                         channelId: activeChannel.id,
                         fileUrl: uploadData.url,
-                        fileType: file.type.startsWith('image') ? 'image' : (file.type.startsWith('video') ? 'video' : 'file'),
-                        message: '' // Empty text for file-only messages
+                        fileType,
+                        message: ''
                     })
                 });
                 if (!messageRes.ok) throw new Error('Failed to save message');
             }
         } catch (error) {
             console.error('File upload failed:', error);
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
         } finally {
             setIsSending(false);
         }
@@ -448,7 +464,10 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
 
                                         {msg.audioUrl && (
                                             <div className="mt-2 flex items-center gap-3 bg-[#5865F2]/10 p-3 rounded-[24px] border border-[#5865F2]/20 max-w-xs group/audio">
-                                                <button className="w-10 h-10 bg-[#5865F2] rounded-full flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
+                                                <button
+                                                    onClick={() => playAudio(msg.audioUrl)}
+                                                    className="w-10 h-10 bg-[#5865F2] rounded-full flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform"
+                                                >
                                                     <IoPlay size={20} />
                                                 </button>
                                                 <div className="flex-1 flex gap-1 items-center">
@@ -456,7 +475,7 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                                                         <div key={i} className="w-1 h-3 bg-[#5865F2]/40 rounded-full" />
                                                     ))}
                                                 </div>
-                                                <span className="text-[11px] font-bold text-[#5865F2]">0:01</span>
+                                                <span className="text-[11px] font-bold text-[#5865F2]">Voice Note</span>
                                             </div>
                                         )}
 

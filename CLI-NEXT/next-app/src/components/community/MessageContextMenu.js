@@ -1,6 +1,5 @@
-'use client';
-
-import { IoArrowBack, IoArrowForward, IoPin, IoCopy, IoTrash, IoChatbubbleEllipses, IoClose, IoHappyOutline } from 'react-icons/io5';
+import { useState } from 'react';
+import { IoArrowBack, IoArrowForward, IoPin, IoCopy, IoTrash, IoChatbubbleEllipses, IoClose, IoHappyOutline, IoAdd } from 'react-icons/io5';
 
 const QUICK_REACTIONS = ['👍', '❤️', '🔥', '😆', '😮', '😢'];
 const ALL_EMOJIS = [
@@ -47,19 +46,44 @@ export default function MessageContextMenu({ message, onClose, onDelete, onReply
             <div className="relative w-full max-w-[400px] bg-[#18191C] rounded-[24px] overflow-hidden shadow-2xl animate-menu-pop flex flex-col pointer-events-auto">
 
                 {/* Reactions Tray */}
-                <div className="flex items-center justify-between px-4 py-4 bg-[#2F3136]/50 border-b border-white/5">
-                    {REACTIONS.map((emoji, i) => (
-                        <button
-                            key={i}
-                            className="text-2xl hover:bg-white/10 p-2 rounded-xl transition-all active:scale-90"
-                            onClick={() => { handleReact(emoji); onClose(); }}
-                        >
-                            {emoji}
-                        </button>
-                    ))}
-                    <button className="p-2 hover:bg-white/10 rounded-xl text-[#B9BBBE] hover:text-white">
-                        <IoHappyOutline size={24} />
-                    </button>
+                <div className="px-4 py-4 bg-[#2F3136]/50 border-b border-white/5">
+                    {showAllEmojis ? (
+                        <div className="grid grid-cols-6 gap-2 max-h-[160px] overflow-y-auto no-scrollbar animate-menu-pop">
+                            {ALL_EMOJIS.map((emoji, i) => (
+                                <button
+                                    key={i}
+                                    className="text-2xl hover:bg-white/10 p-2 rounded-xl transition-all active:scale-90 flex items-center justify-center"
+                                    onClick={() => { handleReact(emoji); onClose(); }}
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setShowAllEmojis(false)}
+                                className="text-xl p-2 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center"
+                            >
+                                <IoArrowBack size={20} className="text-[#B9BBBE]" />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-between">
+                            {QUICK_REACTIONS.map((emoji, i) => (
+                                <button
+                                    key={i}
+                                    className="text-2xl hover:bg-white/10 p-2 rounded-xl transition-all active:scale-90"
+                                    onClick={() => { handleReact(emoji); onClose(); }}
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setShowAllEmojis(true)}
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-[#B9BBBE] hover:text-white transition-colors flex items-center justify-center"
+                            >
+                                <IoAdd size={24} />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Primary Actions */}

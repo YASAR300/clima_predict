@@ -17,6 +17,16 @@ export async function GET(req) {
             include: {
                 user: {
                     select: { id: true, name: true }
+                },
+                repliedTo: {
+                    include: {
+                        user: { select: { name: true } }
+                    }
+                },
+                reactions: {
+                    include: {
+                        user: { select: { id: true, name: true } }
+                    }
                 }
             },
             orderBy: { createdAt: 'asc' },
@@ -35,7 +45,7 @@ export async function POST(req) {
         const userId = await verifyToken(req);
         if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { channelId, message, audioUrl, isAI } = await req.json();
+        const { channelId, message, audioUrl, fileUrl, fileType, repliedToId, isAI } = await req.json();
 
         const chatMessage = await prisma.chatMessage.create({
             data: {
@@ -43,12 +53,21 @@ export async function POST(req) {
                 channelId,
                 message,
                 audioUrl,
+                fileUrl,
+                fileType,
+                repliedToId,
                 isAI: isAI || false
             },
             include: {
                 user: {
                     select: { id: true, name: true }
-                }
+                },
+                repliedTo: {
+                    include: {
+                        user: { select: { name: true } }
+                    }
+                },
+                reactions: true
             }
         });
 

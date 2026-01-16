@@ -23,6 +23,7 @@ model User {
   ownedGroups       CommunityGroup[] @relation("OwnedGroups")
   groupMemberships GroupMember[]
   posts             Post[]
+  reactions         MessageReaction[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 }
@@ -102,8 +103,26 @@ model ChatMessage {
   channel    Channel? @relation(fields: [channelId], references: [id])
   message    String?
   audioUrl   String?
+  fileUrl    String?
+  fileType   String? // 'image', 'video', 'pdf', etc.
   isAI       Boolean  @default(false)
+  repliedToId String?
+  repliedTo   ChatMessage? @relation("MessageReplies", fields: [repliedToId], references: [id])
+  replies     ChatMessage[] @relation("MessageReplies")
+  reactions   MessageReaction[]
   createdAt  DateTime @default(now())
+}
+
+model MessageReaction {
+  id        String      @id @default(uuid())
+  emoji     String
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, messageId, emoji])
 }
 
 model Post {

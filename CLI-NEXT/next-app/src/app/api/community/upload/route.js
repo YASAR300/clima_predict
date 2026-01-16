@@ -22,7 +22,7 @@ export async function POST(req) {
         // Upload to Cloudinary
         const result = await uploadToCloudinary(buffer, {
             folder: 'clima-predict/voice-notes',
-            resourceType: 'video', // Audio files are treated as video in Cloudinary
+            resourceType: 'auto', // Auto-detect image, video, or raw file
             publicId: `${userId}-${Date.now()}`
         });
 

@@ -1,8 +1,13 @@
 'use client';
 
-import { IoArrowBack, IoArrowForward, IoPin, IoCopy, IoTrash, IoChatbubbleEllipses, IoClose } from 'react-icons/io5';
+import { IoArrowBack, IoArrowForward, IoPin, IoCopy, IoTrash, IoChatbubbleEllipses, IoClose, IoHappyOutline } from 'react-icons/io5';
 
-const REACTIONS = ['✅', '👍', '👀', '😆', '💯', '😊'];
+const QUICK_REACTIONS = ['👍', '❤️', '🔥', '😆', '😮', '😢'];
+const ALL_EMOJIS = [
+    '👍', '❤️', '🔥', '😆', '😮', '😢', '💯', '✨', '🎉', '🙏',
+    '✅', '❌', '👀', '🤔', '💀', '🚀', '👏', '🌈', '😍', '😂',
+    '✅', '🙄', '😡', '😴', '💪', '🍦', '🍕', '🌸', '🌍', '🏠'
+];
 const ACTIONS = [
     { id: 'reply', label: 'Reply', icon: IoArrowBack },
     { id: 'forward', label: 'Forward', icon: IoArrowForward },
@@ -10,8 +15,25 @@ const ACTIONS = [
     { id: 'copy', label: 'Copy Message Link', icon: IoCopy },
 ];
 
-export default function MessageContextMenu({ message, onClose, onDelete, onReply }) {
+export default function MessageContextMenu({ message, onClose, onDelete, onReply, onReact }) {
+    const [showAllEmojis, setShowAllEmojis] = useState(false);
     if (!message) return null;
+
+    const handleReact = async (emoji) => {
+        try {
+            const res = await fetch('/api/community/messages/reactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messageId: message.id, emoji })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                onReact(message.id, emoji, data.action, data.reaction);
+            }
+        } catch (error) {
+            console.error('Reaction failed:', error);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-4">
@@ -30,13 +52,13 @@ export default function MessageContextMenu({ message, onClose, onDelete, onReply
                         <button
                             key={i}
                             className="text-2xl hover:bg-white/10 p-2 rounded-xl transition-all active:scale-90"
-                            onClick={() => { /* Add reaction logic */ onClose(); }}
+                            onClick={() => { handleReact(emoji); onClose(); }}
                         >
                             {emoji}
                         </button>
                     ))}
-                    <button className="p-2 hover:bg-white/10 rounded-xl">
-                        <IoHappyOutline className="text-[#B9BBBE]" size={24} />
+                    <button className="p-2 hover:bg-white/10 rounded-xl text-[#B9BBBE] hover:text-white">
+                        <IoHappyOutline size={24} />
                     </button>
                 </div>
 
@@ -77,13 +99,10 @@ export default function MessageContextMenu({ message, onClose, onDelete, onReply
             {/* Close button for accessibility on mobile */}
             <button
                 onClick={onClose}
-                className="mt-4 p-3 bg-white/10 rounded-full text-white md:hidden animate-menu-pop"
+                className="mt-4 p-3 bg-white/10 rounded-full text-white md:hidden animate-menu-pop flex items-center justify-center"
             >
                 <IoClose size={24} />
             </button>
         </div>
     );
 }
-
-// Add this icon if missing in imports
-import { IoHappyOutline } from 'react-icons/io5';

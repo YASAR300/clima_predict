@@ -16,6 +16,8 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
     const [onlineCount, setOnlineCount] = useState(1);
     const [longPressedMessage, setLongPressedMessage] = useState(null);
     const [replyingTo, setReplyingTo] = useState(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -73,6 +75,20 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                     return [...prev, data];
                 });
                 scrollToBottom();
+            });
+
+            channel.bind('message-reaction', (data) => {
+                setMessages(prev => prev.map(m => {
+                    if (m.id !== data.messageId) return m;
+                    const reactions = m.reactions || [];
+                    if (data.action === 'removed') {
+                        return { ...m, reactions: reactions.filter(r => !(r.userId === data.userId && r.emoji === data.emoji)) };
+                    } else {
+                        // Check if already exists to avoid duplicate local updates
+                        if (reactions.find(r => r.userId === data.userId && r.emoji === data.emoji)) return m;
+                        return { ...m, reactions: [...reactions, data.reaction] };
+                    }
+                }));
             });
 
             channel.bind('message-deleted', (data) => {
@@ -206,16 +222,21 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
         setMessages((prev) => [...prev, optimisticMessage]);
 
         try {
+            const body = {
+                channelId: activeChannel.id,
+                message: text,
+                repliedToId: replyingTo?.id
+            };
+
             const res = await fetch('/api/community/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    channelId: activeChannel.id,
-                    message: text
-                }),
+                body: JSON.stringify(body)
             });
 
             if (!res.ok) throw new Error('Failed to send');
+
+            setReplyingTo(null);
 
             const pusher = getPusherClient();
             if (pusher) {
@@ -255,6 +276,42 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
 
     const clearLongPressTimer = () => {
         if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsSending(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('extension', file.name.split('.').pop());
+
+        try {
+            const uploadRes = await fetch('/api/community/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+
+            if (uploadData.success) {
+                const messageRes = await fetch('/api/community/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        channelId: activeChannel.id,
+                        fileUrl: uploadData.url,
+                        fileType: file.type.startsWith('image') ? 'image' : (file.type.startsWith('video') ? 'video' : 'file'),
+                        message: '' // Empty text for file-only messages
+                    })
+                });
+                if (!messageRes.ok) throw new Error('Failed to save message');
+            }
+        } catch (error) {
+            console.error('File upload failed:', error);
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const handleAICall = async (query) => {
@@ -352,6 +409,14 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                                         </div>
                                     )}
                                     <div className="flex-1 min-w-0">
+                                        {msg.repliedTo && (
+                                            <div className="flex items-center gap-1.5 mb-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+                                                <div className="w-8 h-px bg-[#4F545C] ml-5 rounded-bl-lg border-l border-b" />
+                                                <span className="text-[12px] text-[#B9BBBE] font-medium truncate max-w-[200px]">
+                                                    {msg.repliedTo.user?.name}: {msg.repliedTo.message || 'File'}
+                                                </span>
+                                            </div>
+                                        )}
                                         {showHeader && (
                                             <div className="flex items-baseline gap-2 mb-0.5">
                                                 <span className="text-[15px] font-bold text-white hover:underline cursor-pointer">
@@ -365,9 +430,58 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                                         <div className={`text-[15px] leading-snug text-[#DCDDDE] break-words whitespace-pre-wrap ${!showHeader ? 'pl-0' : ''}`}>
                                             {msg.message}
                                         </div>
+
+                                        {msg.fileUrl && (
+                                            <div className="mt-2 rounded-xl overflow-hidden max-w-[300px] border border-white/5 shadow-md">
+                                                {msg.fileType === 'image' ? (
+                                                    <img src={msg.fileUrl} alt="Attachment" className="w-full object-cover" />
+                                                ) : msg.fileType === 'video' ? (
+                                                    <video src={msg.fileUrl} controls className="w-full" />
+                                                ) : (
+                                                    <a href={msg.fileUrl} target="_blank" className="flex items-center gap-2 p-3 bg-[#2F3136] text-white">
+                                                        <IoDocument size={24} />
+                                                        <span className="truncate">Download File</span>
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )}
+
                                         {msg.audioUrl && (
-                                            <div className="mt-2 bg-[#2F3136] p-2 rounded-lg border border-black/10 max-w-xs shadow-inner">
-                                                <audio controls src={msg.audioUrl} className="w-full h-8 opacity-80" />
+                                            <div className="mt-2 flex items-center gap-3 bg-[#5865F2]/10 p-3 rounded-[24px] border border-[#5865F2]/20 max-w-xs group/audio">
+                                                <button className="w-10 h-10 bg-[#5865F2] rounded-full flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
+                                                    <IoPlay size={20} />
+                                                </button>
+                                                <div className="flex-1 flex gap-1 items-center">
+                                                    {[...Array(15)].map((_, i) => (
+                                                        <div key={i} className="w-1 h-3 bg-[#5865F2]/40 rounded-full" />
+                                                    ))}
+                                                </div>
+                                                <span className="text-[11px] font-bold text-[#5865F2]">0:01</span>
+                                            </div>
+                                        )}
+
+                                        {msg.reactions?.length > 0 && (
+                                            <div className="mt-2 flex flex-wrap gap-1.5">
+                                                {Object.entries(
+                                                    msg.reactions.reduce((acc, r) => {
+                                                        acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                                                        return acc;
+                                                    }, {})
+                                                ).map(([emoji, count]) => (
+                                                    <button
+                                                        key={emoji}
+                                                        title={msg.reactions.filter(r => r.emoji === emoji).map(r => r.user?.name).join(', ')}
+                                                        className="flex items-center gap-1.5 px-2 py-0.5 bg-[#5865F2]/10 border border-[#5865F2]/20 hover:border-[#5865F2]/50 rounded-lg text-sm transition-all active:scale-95 group/react relative"
+                                                    >
+                                                        <span>{emoji}</span>
+                                                        <span className="text-[12px] font-bold text-[#5865F2]">{count}</span>
+
+                                                        {/* Tooltip for desktop hover */}
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover/react:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                                                            {msg.reactions.filter(r => r.emoji === emoji).map(r => r.user?.name).join(', ')}
+                                                        </div>
+                                                    </button>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
@@ -420,7 +534,18 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                     </div>
                 ) : (
                     <form onSubmit={sendMessage} className="flex items-center gap-2 max-w-full overflow-hidden">
-                        <button type="button" className="p-1.5 text-[#B9BBBE] hover:text-white bg-[#4F545C]/30 hover:bg-[#4F545C] rounded-full flex-shrink-0 transition-colors">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFileUpload}
+                            accept="image/*,video/*"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-1.5 text-[#B9BBBE] hover:text-white bg-[#4F545C]/30 hover:bg-[#4F545C] rounded-full flex-shrink-0 transition-colors"
+                        >
                             <IoAdd size={20} />
                         </button>
 
@@ -441,10 +566,28 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                                     placeholder={`Message #${activeChannel.name}`}
                                     className="flex-1 bg-transparent border-none outline-none text-[#DCDDDE] text-[15px] placeholder:text-[#72767D] min-w-0 py-1"
                                 />
-                                <button type="button" className="p-1 text-[#B9BBBE] hover:text-white flex-shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                    className="p-1 text-[#B9BBBE] hover:text-white flex-shrink-0"
+                                >
                                     <IoHappyOutline size={22} />
                                 </button>
                             </div>
+                            {showEmojiPicker && (
+                                <div className="p-2 grid grid-cols-8 gap-1 bg-[#2F3136]/50 border-t border-white/5 max-h-[150px] overflow-y-auto">
+                                    {['😀', '😂', '😍', '👍', '🔥', '👏', '🙏', '❤️', '✅', '❌', '👀', '🤔', '😎', '😆', '🌈', '🎉'].map(emoji => (
+                                        <button
+                                            key={emoji}
+                                            type="button"
+                                            onClick={() => { setNewMessage(prev => prev + emoji); setShowEmojiPicker(false); }}
+                                            className="text-xl p-1 hover:bg-white/10 rounded transition-colors"
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex-shrink-0 flex items-center">
@@ -476,10 +619,22 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                     onClose={() => setLongPressedMessage(null)}
                     onDelete={deleteMessage}
                     onReply={(msg) => setReplyingTo(msg)}
+                    onReact={(msgId, emoji, action, reaction) => {
+                        setMessages(prev => prev.map(m => {
+                            if (m.id !== msgId) return m;
+                            const reactions = m.reactions || [];
+                            if (action === 'removed') {
+                                return { ...m, reactions: reactions.filter(r => !(r.userId === user.id && r.emoji === emoji)) };
+                            } else {
+                                if (reactions.find(r => r.userId === user.id && r.emoji === emoji)) return m;
+                                return { ...m, reactions: [...reactions, { ...reaction, userId: user.id }] };
+                            }
+                        }));
+                    }}
                 />
             )}
         </div>
     );
 }
 // Add this icon if missing in imports
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoPlay, IoDocument } from 'react-icons/io5';

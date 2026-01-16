@@ -47,6 +47,7 @@ export const getPusherClient = () => {
 
         clientInstance = new PusherClient(key, {
             cluster,
+            authEndpoint: '/api/pusher/auth',
         });
     }
     return clientInstance;

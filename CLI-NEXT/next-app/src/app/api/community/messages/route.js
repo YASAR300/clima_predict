@@ -69,3 +69,39 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
     }
 }
+export async function DELETE(req) {
+    try {
+        const userId = await verifyToken(req);
+        if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const { searchParams } = new URL(req.url);
+        const messageId = searchParams.get('id');
+
+        if (!messageId) {
+            return NextResponse.json({ error: 'Message ID is required' }, { status: 400 });
+        }
+
+        // Verify ownership
+        const msg = await prisma.chatMessage.findUnique({
+            where: { id: messageId }
+        });
+
+        if (!msg || msg.userId !== userId) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        await prisma.chatMessage.delete({
+            where: { id: messageId }
+        });
+
+        const pusher = getPusherServer();
+        if (pusher) {
+            await pusher.trigger(`channel-${msg.channelId}`, 'message-deleted', { id: messageId });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Message deletion error:', error);
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    }
+}

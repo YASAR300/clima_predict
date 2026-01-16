@@ -17,6 +17,8 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
     const [longPressedMessage, setLongPressedMessage] = useState(null);
     const [replyingTo, setReplyingTo] = useState(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [playingAudio, setPlayingAudio] = useState(null); // { url, isPlaying, audioRef }
+    const audioRef = useRef(null);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
@@ -145,9 +147,25 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
         }
     };
 
-    const playAudio = (url) => {
-        const audio = new Audio(url);
-        audio.play().catch(e => console.error('Playback failed:', e));
+    const toggleAudio = (url) => {
+        if (playingAudio?.url === url) {
+            if (playingAudio.isPlaying) {
+                audioRef.current.pause();
+                setPlayingAudio({ ...playingAudio, isPlaying: false });
+            } else {
+                audioRef.current.play();
+                setPlayingAudio({ ...playingAudio, isPlaying: true });
+            }
+        } else {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+            const audio = new Audio(url);
+            audioRef.current = audio;
+            audio.onended = () => setPlayingAudio(null);
+            audio.play().catch(e => console.error('Playback failed:', e));
+            setPlayingAudio({ url, isPlaying: true });
+        }
     };
 
     const sendAudio = async (blob) => {
@@ -265,9 +283,20 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
         }
     };
 
+    const handleContextMenu = (e, msg) => {
+        // Only trigger on desktop/right-click
+        if (window.matchMedia("(pointer: fine)").matches) {
+            e.preventDefault();
+            setLongPressedMessage(msg);
+        }
+    };
+
     const handleLongPress = (msg) => {
-        if (window.navigator.vibrate) window.navigator.vibrate(50);
-        setLongPressedMessage(msg);
+        // Only trigger on touch devices
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+            setLongPressedMessage(msg);
+        }
     };
 
     const startLongPressTimer = (msg) => {
@@ -408,8 +437,11 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                             return (
                                 <div
                                     key={msg.id || idx}
-                                    className={`flex gap-4 ${showHeader ? 'mt-4' : 'mt-1'} group active:bg-white/5 transition-colors cursor-pointer select-none`}
-                                    onMouseDown={() => startLongPressTimer(msg)}
+                                    className={`flex gap-4 ${showHeader ? 'mt-4' : 'mt-1'} group active:bg-white/10 transition-colors cursor-pointer select-none px-2 rounded-lg`}
+                                    onMouseDown={(e) => {
+                                        if (e.button === 0) startLongPressTimer(msg);
+                                    }}
+                                    onContextMenu={(e) => handleContextMenu(e, msg)}
                                     onMouseUp={clearLongPressTimer}
                                     onMouseLeave={clearLongPressTimer}
                                     onTouchStart={() => startLongPressTimer(msg)}
@@ -465,17 +497,33 @@ export default function ChatWindow({ activeChannel, user, onBack }) {
                                         {msg.audioUrl && (
                                             <div className="mt-2 flex items-center gap-3 bg-[#5865F2]/10 p-3 rounded-[24px] border border-[#5865F2]/20 max-w-xs group/audio">
                                                 <button
-                                                    onClick={() => playAudio(msg.audioUrl)}
+                                                    onClick={(e) => { e.stopPropagation(); toggleAudio(msg.audioUrl); }}
                                                     className="w-10 h-10 bg-[#5865F2] rounded-full flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform"
                                                 >
-                                                    <IoPlay size={20} />
+                                                    {playingAudio?.url === msg.audioUrl && playingAudio.isPlaying ? (
+                                                        <div className="flex gap-1">
+                                                            <div className="w-1 h-3 bg-white rounded-full animate-pulse" />
+                                                            <div className="w-1 h-3 bg-white rounded-full animate-pulse delay-75" />
+                                                        </div>
+                                                    ) : (
+                                                        <IoPlay size={20} className="ml-1" />
+                                                    )}
                                                 </button>
                                                 <div className="flex-1 flex gap-1 items-center">
                                                     {[...Array(15)].map((_, i) => (
-                                                        <div key={i} className="w-1 h-3 bg-[#5865F2]/40 rounded-full" />
+                                                        <div
+                                                            key={i}
+                                                            className={`w-1 h-3 rounded-full transition-all ${playingAudio?.url === msg.audioUrl && playingAudio.isPlaying ? 'bg-[#5865F2]' : 'bg-[#5865F2]/40'
+                                                                }`}
+                                                            style={{
+                                                                height: playingAudio?.url === msg.audioUrl && playingAudio.isPlaying ? `${Math.random() * 8 + 4}px` : '12px'
+                                                            }}
+                                                        />
                                                     ))}
                                                 </div>
-                                                <span className="text-[11px] font-bold text-[#5865F2]">Voice Note</span>
+                                                <span className="text-[11px] font-bold text-[#5865F2]">
+                                                    {playingAudio?.url === msg.audioUrl && playingAudio.isPlaying ? 'Playing...' : 'Voice Note'}
+                                                </span>
                                             </div>
                                         )}
 

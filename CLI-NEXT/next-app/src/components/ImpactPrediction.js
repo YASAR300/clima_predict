@@ -1,6 +1,6 @@
 'use client';
 
-import { NavArrowUp, NavArrowDown, InfoEmpty, AlertTriangle, Sparkles } from 'iconoir-react';
+import { NavArrowUp, NavArrowDown, InfoCircle, AlertTriangle, Sparks } from 'iconoir-react';
 
 /**
  * Impact Prediction Component
@@ -27,7 +27,7 @@ export default function ImpactPrediction({ prediction, loading }) {
                 }`} />
 
             <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="text-[#00D09C]" width={16} height={16} />
+                <InfoCircle className="text-[#00D09C]" width={16} height={16} />
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Yield Impact Prediction</span>
             </div>
 

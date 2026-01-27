@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Clock, NavArrowRight, InfoEmpty, ShoppingCart, Info, CheckCircle, Leaf } from 'iconoir-react';
+import { Bell, Clock, NavArrowRight, InfoCircle, ShoppingCart, CheckCircle, Leaf } from 'iconoir-react';
 
 /**
  * Expert Zone Recommendations
@@ -57,7 +57,7 @@ export default function ZoneRecommendations({ advice, loading, onApplyAction }) 
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all text-[10px] font-black uppercase tracking-wider ${showLogic ? 'bg-[#00D09C] text-[#0D0D0D] border-[#00D09C]' : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
                         }`}
                 >
-                    <InfoEmpty width={14} height={14} />
+                    <InfoCircle width={14} height={14} />
                     {showLogic ? 'Hide Logic' : 'Why This Advice?'}
                 </button>
             </div>

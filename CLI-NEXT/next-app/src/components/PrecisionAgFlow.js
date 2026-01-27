@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FieldSetupForm from './FieldSetupForm';
 import PhotoUploadSystem from './PhotoUploadSystem';
 import AnalysisTrigger from './AnalysisTrigger';

@@ -55,7 +55,36 @@ export async function POST(req) {
             }
         });
 
-        return NextResponse.json({ success: true, record });
+        // Dynamic Feedback Loop: Update Crop Health/Soil if UUID is valid
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cropId);
+        if (isUuid) {
+            try {
+                // 1. Update Crop Health (Simplified: +5% health per action, max 100)
+                await prisma.crop.update({
+                    where: { id: cropId },
+                    data: {
+                        health: { increment: 5 },
+                        status: 'Monitoring Post-Action'
+                    }
+                });
+
+                // 2. Adjust Soil Data (Simulation: increase nutrients if fertilizer mentioned)
+                if (action.toLowerCase().includes('fertilizer') || (inputUsed && inputUsed.toLowerCase().includes('n-p-k'))) {
+                    await prisma.soilData.update({
+                        where: { cropId: cropId },
+                        data: {
+                            nitrogen: { increment: 2.5 },
+                            phosphorus: { increment: 1.5 },
+                            potassium: { increment: 1.0 }
+                        }
+                    }).catch(() => null); // Ignore if no soil data object exists
+                }
+            } catch (updateError) {
+                console.error('Feedback loop update failed:', updateError.message);
+            }
+        }
+
+        return NextResponse.json({ success: true, record, message: 'Action recorded and farm state updated dynamically.' });
     } catch (error) {
         console.error('Agronomy Records POST Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -11,24 +11,30 @@ export default function ZoneRecommendations({ advice, loading, onApplyAction }) 
     const [expandedRec, setExpandedRec] = useState(null);
     const [showLogic, setShowLogic] = useState(false);
 
-    if (loading) {
+    if (loading || !advice) {
         return (
-            <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-6 md:p-8 animate-pulse">
-                <div className="h-6 bg-white/10 rounded-xl w-1/2 mb-6" />
+            <div className="bg-[#111111]/80 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="h-8 bg-white/10 rounded-xl w-48 animate-pulse" />
+                    <div className="h-8 bg-white/5 rounded-xl w-24 animate-pulse" />
+                </div>
                 <div className="space-y-4">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-32 bg-white/10 rounded-2xl" />
+                        <div key={i} className="p-5 bg-white/5 border border-white/5 rounded-[2rem] space-y-3">
+                            <div className="h-2 bg-white/20 rounded w-1/4 animate-pulse" />
+                            <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse" />
+                            <div className="flex gap-2">
+                                <div className="h-6 bg-white/5 rounded-lg w-16 animate-pulse" />
+                                <div className="h-6 bg-white/5 rounded-lg w-20 animate-pulse" />
+                            </div>
+                        </div>
                     ))}
                 </div>
-            </div>
-        );
-    }
-
-    if (!advice) {
-        return (
-            <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-8 text-center">
-                <Leaf className="mx-auto text-white/10 mb-4" width={48} height={48} />
-                <p className="text-white/40 font-bold">Waiting for field analysis...</p>
+                <div className="mt-auto pt-6 text-center">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] animate-pulse">
+                        Synchronising Neural Path...
+                    </p>
+                </div>
             </div>
         );
     }

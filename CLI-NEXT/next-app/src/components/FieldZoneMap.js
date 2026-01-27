@@ -40,8 +40,11 @@ export default function FieldZoneMap({ zones, selectedZone, onZoneSelect, zoneHe
 
         // Add zone markers
         zones.forEach((zone, index) => {
-            const lat = (location?.lat || 28.6139) + (index * 0.01);
-            const lon = (location?.lon || 77.2090) + (index * 0.01);
+            const baseLat = Number(location?.lat || 28.6139);
+            const baseLon = Number(location?.lon || 77.2090);
+
+            const lat = baseLat + (index * 0.01);
+            const lon = baseLon + (index * 0.01);
 
             const healthColor = getZoneHealthColor(zone.id, selectedZone, zoneHealth);
 

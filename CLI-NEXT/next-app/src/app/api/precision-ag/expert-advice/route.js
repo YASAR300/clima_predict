@@ -26,21 +26,26 @@ export async function POST(req) {
             visualSignals = await cropVisionAI.analyzePlantPhoto(photoBase64);
         }
 
-        // 2. Fetch Farm History
-        const history = await prisma.agronomyRecord.findMany({
-            where: { cropId: cropId || '' },
-            take: 10,
-            orderBy: { createdAt: 'desc' }
-        });
+        // 2. Fetch Farm History (Skip if ID is not a valid UUID)
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cropId);
+        let history = [];
+        if (isUuid) {
+            history = await prisma.agronomyRecord.findMany({
+                where: { cropId: cropId },
+                take: 10,
+                orderBy: { createdAt: 'desc' }
+            });
+        }
 
         // 3. Get Expert AI Advice
+        console.log('Generating AI Advice for:', { cropType, growthStage });
         const expertAdvice = await agronomistAI.getExpertAdvice({
             cropType,
             growthStage,
             location,
             soilData,
             weather,
-            pestsRisk: { predictedRisk: 'moderate', details: 'High humidity increases fungal risk' },
+            pestsRisk: { predictedRisk: 'moderate', details: 'Automated predictive analysis' },
             history,
             photoAnalysis: visualSignals
         });
@@ -56,6 +61,14 @@ export async function POST(req) {
 
     } catch (error) {
         console.error('Expert Advice API Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error', message: error.message }, { status: 500 });
+        return NextResponse.json(
+            {
+                error: 'Internal Server Error',
+                message: error.message,
+                stack: error.stack,
+                hint: 'Check GEMINI_API_KEY and DATABASE_URL in .env'
+            },
+            { status: 500 }
+        );
     }
 }

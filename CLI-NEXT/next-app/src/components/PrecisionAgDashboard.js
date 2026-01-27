@@ -11,37 +11,56 @@ import AgronomyCalendar from './AgronomyCalendar';
 import ImpactPrediction from './ImpactPrediction';
 
 /**
- * Precision Agriculture Dashboard
- * Main container for zone-based field management
- * Responsive design: Desktop (3-column) + Mobile (stacked)
+ * Precision Agriculture Dashboard - Optimized Compact Version
  */
 
-export default function PrecisionAgDashboard({ location, cropType = 'rice', daysAfterSowing = 45 }) {
-    const [activeTab, setActiveTab] = useState('overview'); // Mobile tabs
+export default function PrecisionAgDashboard({ location }) {
+    const [activeTab, setActiveTab] = useState('overview');
     const [zoneHealth, setZoneHealth] = useState(null);
     const [expertAdvice, setExpertAdvice] = useState(null);
     const [latestAnalysis, setLatestAnalysis] = useState(null);
     const [loading, setLoading] = useState(true);
     const [adviceLoading, setAdviceLoading] = useState(true);
-    const [selectedZone, setSelectedZone] = useState('zone_1');
+    const [selectedZone, setSelectedZone] = useState(null);
+    const [zones, setZones] = useState([]);
 
-    // Mock zones data (will be replaced with real field data)
-    const zones = [
-        { id: 'zone_1', name: 'North Field', area: 2.5, crop: cropType },
-        { id: 'zone_2', name: 'South Field', area: 3.0, crop: cropType },
-        { id: 'zone_3', name: 'East Field', area: 1.8, crop: cropType }
-    ];
+    // Fetch All User Crops
+    useEffect(() => {
+        const fetchCrops = async () => {
+            try {
+                const response = await fetch('/api/crops');
+                const result = await response.json();
+                if (result.success && result.data.length > 0) {
+                    const mappedCrops = result.data.map(c => ({
+                        id: c.id,
+                        name: c.area || `${c.type} Field`,
+                        area: parseFloat(c.area) || 0,
+                        crop: c.type,
+                        sowingDate: c.sowingDate
+                    }));
+                    setZones(mappedCrops);
+                    setSelectedZone(mappedCrops[0].id);
+                }
+            } catch (e) { console.error('Failed to fetch crops', e); }
+        };
+        fetchCrops();
+    }, []);
+
+    // Derived values for the selected crop
+    const selectedCropData = zones.find(z => z.id === selectedZone);
+    const currentCropType = selectedCropData?.crop || 'unknown';
+    const currentDaysAfterSowing = selectedCropData?.sowingDate
+        ? Math.floor((new Date() - new Date(selectedCropData.sowingDate)) / (1000 * 60 * 60 * 24))
+        : 45;
 
     useEffect(() => {
+        if (!selectedZone) return;
         fetchZoneHealth();
         fetchExpertAdvice();
-
-        // Background refresh every 60 seconds
         const interval = setInterval(() => {
             fetchZoneHealthSilent();
             fetchExpertAdviceSilent();
         }, 60000);
-
         return () => clearInterval(interval);
     }, [selectedZone, location]);
 
@@ -54,20 +73,17 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                     zoneId: selectedZone,
                     lat: location?.lat || 28.6139,
                     lon: location?.lon || 77.2090,
-                    cropType,
-                    daysAfterSowing,
+                    cropType: currentCropType,
+                    daysAfterSowing: currentDaysAfterSowing,
                     sensorData: { soilMoisture: 65, temperature: 28 },
                     imageAnalysis: latestAnalysis
                 })
             });
-
             if (response.ok) {
                 const result = await response.json();
                 setZoneHealth(result.data);
             }
-        } catch (error) {
-            console.error('Background health refresh failed:', error);
-        }
+        } catch (error) { console.error('Silent refresh failed', error); }
     };
 
     const fetchExpertAdviceSilent = async () => {
@@ -77,8 +93,8 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     cropId: selectedZone,
-                    cropType,
-                    growthStage: daysAfterSowing < 30 ? 'Seedling' : daysAfterSowing < 60 ? 'Vegetative' : 'Reproductive',
+                    cropType: currentCropType,
+                    growthStage: currentDaysAfterSowing < 30 ? 'Seedling' : currentDaysAfterSowing < 60 ? 'Vegetative' : 'Reproductive',
                     location,
                     soilData: {
                         n: zoneHealth?.breakdown?.nitrogen?.value || 120,
@@ -86,7 +102,7 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                         k: zoneHealth?.breakdown?.potassium?.value || 45,
                         ph: zoneHealth?.breakdown?.ph?.value || 6.5
                     },
-                    weather: { temp: 28, humidity: 65, forecast: 'Clear with rising humidity' }
+                    weather: { temp: 28, humidity: 65, forecast: 'Standard conditions' }
                 })
             });
             if (response.ok) {
@@ -97,16 +113,17 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
     };
 
     const fetchExpertAdvice = async () => {
+        if (!selectedZone) return;
         setAdviceLoading(true);
-        setExpertAdvice(null); // Show skeletons
+        setExpertAdvice(null);
         try {
             const response = await fetch(`/api/precision-ag/expert-advice`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     cropId: selectedZone,
-                    cropType,
-                    growthStage: daysAfterSowing < 30 ? 'Seedling' : daysAfterSowing < 60 ? 'Vegetative' : 'Reproductive',
+                    cropType: currentCropType,
+                    growthStage: currentDaysAfterSowing < 30 ? 'Seedling' : currentDaysAfterSowing < 60 ? 'Vegetative' : 'Reproductive',
                     location,
                     soilData: {
                         n: zoneHealth?.breakdown?.nitrogen?.value || 120,
@@ -114,7 +131,7 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                         k: zoneHealth?.breakdown?.potassium?.value || 45,
                         ph: zoneHealth?.breakdown?.ph?.value || 6.5
                     },
-                    weather: { temp: 28, humidity: 65, forecast: 'Clear with rising humidity' }
+                    weather: { temp: 28, humidity: 65, forecast: 'Generating high-accuracy forecast...' }
                 })
             });
             if (response.ok) {
@@ -141,18 +158,14 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                     decisionLogic: expertAdvice?.decisionLogic
                 })
             });
-            alert(`Action "${action.action}" recorded successfully! Your farm learning history has been updated.`);
-        } catch (e) {
-            console.error('Record failed', e);
-        }
+            alert(`Action "${action.action}" recorded successfully!`);
+        } catch (e) { console.error('Record failed', e); }
     };
 
     const fetchZoneHealth = async (analysisData = latestAnalysis) => {
+        if (!selectedZone) return;
         setLoading(true);
-        if (analysisData && analysisData.healthScore) {
-            setLatestAnalysis(analysisData);
-        }
-
+        if (analysisData && analysisData.healthScore) setLatestAnalysis(analysisData);
         try {
             const response = await fetch(`/api/precision-ag/zone-health`, {
                 method: 'POST',
@@ -161,13 +174,12 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
                     zoneId: selectedZone,
                     lat: location?.lat || 28.6139,
                     lon: location?.lon || 77.2090,
-                    cropType,
-                    daysAfterSowing,
+                    cropType: currentCropType,
+                    daysAfterSowing: currentDaysAfterSowing,
                     sensorData: { soilMoisture: 65, temperature: 28 },
                     imageAnalysis: analysisData
                 })
             });
-
             if (response.ok) {
                 const result = await response.json();
                 setZoneHealth(result.data);
@@ -181,254 +193,94 @@ export default function PrecisionAgDashboard({ location, cropType = 'rice', days
 
     return (
         <div className="w-full">
-            {/* Header Section */}
-            <div className="mb-6 md:mb-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-                            <div className="p-2 bg-[#00D09C]/10 rounded-xl">
-                                <Leaf width={28} height={28} className="text-[#00D09C]" />
-                            </div>
-                            Precision Agriculture
-                        </h1>
-                        <p className="text-white/40 text-sm font-medium mt-1">
-                            Zone-based field intelligence • {cropType.charAt(0).toUpperCase() + cropType.slice(1)} • Day {daysAfterSowing}
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        {/* Refresh AI Analysis */}
-                        <button
-                            onClick={fetchExpertAdvice}
-                            disabled={adviceLoading}
-                            className="p-3 bg-white/5 border border-white/5 rounded-2xl hover:bg-[#00D09C]/10 hover:border-[#00D09C]/30 text-white/40 hover:text-[#00D09C] transition-all active:scale-95 disabled:opacity-50"
-                            title="Run Expert AI Analysis"
-                        >
-                            {adviceLoading ? (
-                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <Refresh width={20} height={20} />
-                            )}
-                        </button>
-
-                        <div className="hidden md:flex items-center gap-3">
-                            <span className="text-xs font-bold text-white/40 uppercase tracking-wider">Active Zone:</span>
-                            <select
-                                value={selectedZone}
-                                onChange={(e) => setSelectedZone(e.target.value)}
-                                className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 text-white font-bold text-sm focus:outline-none focus:border-[#00D09C] transition-all"
-                            >
-                                {zones.map(zone => (
-                                    <option key={zone.id} value={zone.id} className="bg-[#1A1A1A]">
-                                        {zone.name} ({zone.area} ha)
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+            {/* Header */}
+            <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                        <Leaf width={24} height={24} className="text-[#00D09C]" />
+                        Precision Ag
+                    </h1>
+                    <p className="text-white/30 text-xs font-bold uppercase tracking-widest mt-0.5">
+                        {currentCropType} • Day {currentDaysAfterSowing} • {selectedCropData?.name}
+                    </p>
                 </div>
 
-                {/* Zone Selector - Mobile */}
-                <div className="md:hidden mt-4">
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={fetchExpertAdvice}
+                        disabled={adviceLoading}
+                        className="p-2.5 bg-white/5 border border-white/5 rounded-xl hover:bg-[#00D09C]/10 text-white/40 hover:text-[#00D09C] transition-all"
+                    >
+                        <Refresh width={18} height={18} className={adviceLoading ? 'animate-spin' : ''} />
+                    </button>
+
+                    <select
+                        value={selectedZone}
+                        onChange={(e) => setSelectedZone(e.target.value)}
+                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white font-bold text-xs focus:outline-none"
+                    >
                         {zones.map(zone => (
-                            <button
-                                key={zone.id}
-                                onClick={() => setSelectedZone(zone.id)}
-                                className={`flex-shrink-0 px-4 py-2 rounded-2xl font-bold text-sm transition-all ${selectedZone === zone.id
-                                    ? 'bg-[#00D09C] text-[#0D0D0D]'
-                                    : 'bg-white/5 text-white/60 border border-white/10'
-                                    }`}
-                            >
-                                {zone.name}
-                            </button>
+                            <option key={zone.id} value={zone.id} className="bg-[#1A1A1A]">{zone.name}</option>
                         ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Main Compact Grid */}
+            <div className="hidden md:grid grid-cols-12 gap-5 items-start">
+                {/* Left: Health & Yield (Compact) */}
+                <div className="col-span-12 lg:col-span-3 space-y-4">
+                    <ZoneHealthMeter zoneHealth={zoneHealth} loading={loading} zoneName={zones.find(z => z.id === selectedZone)?.name} />
+                    <ImpactPrediction prediction={expertAdvice?.impactPrediction} loading={adviceLoading} />
+                    <div className="grid grid-cols-2 gap-3">
+                        <SmallStatCard icon={<Droplet width={18} height={18} className="text-[#4D9FFF]" />} label="Soil" value={`${zoneHealth?.breakdown?.soilMoisture?.value || '--'}%`} />
+                        <SmallStatCard icon={<NavArrowUp width={18} height={18} className="text-[#FFC857]" />} label="Vigor" value={zoneHealth?.breakdown?.cropVigor?.score || '--'} />
                     </div>
                 </div>
-            </div>
 
-            {/* Mobile Tab Switcher */}
-            <div className="md:hidden mb-6">
-                <div className="flex bg-white/5 backdrop-blur-lg p-1.5 rounded-[1.5rem] border border-white/10">
-                    {['overview', 'map', 'advice', 'history'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`flex-1 py-3 text-sm font-bold rounded-2xl capitalize transition-all duration-300 ${activeTab === tab
-                                ? 'bg-[#00D09C] text-[#0D0D0D] shadow-lg shadow-[#00D09C]/20'
-                                : 'text-white/40'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Desktop Layout - 3 Column Grid */}
-            <div className="hidden md:grid grid-cols-12 gap-8">
-                {/* Left Column: Zone Health + Quick Stats */}
-                <div className="col-span-12 lg:col-span-4 space-y-6">
-                    <ZoneHealthMeter
-                        zoneHealth={zoneHealth}
-                        loading={loading}
-                        zoneName={zones.find(z => z.id === selectedZone)?.name}
-                    />
-
-                    <ImpactPrediction
-                        prediction={expertAdvice?.impactPrediction}
-                        loading={adviceLoading}
-                    />
-
+                {/* Middle: Tactical Map */}
+                <div className="col-span-12 lg:col-span-5 space-y-4">
+                    <div className="bg-[#111111]/80 backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden h-[380px]">
+                        <FieldZoneMap zones={zones} selectedZone={selectedZone} onZoneSelect={setSelectedZone} zoneHealth={zoneHealth} location={location} />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-[#111111]/40 border border-white/5 rounded-[2rem] p-5 hover:bg-white/[0.07] transition-all group">
-                            <div className="bg-[#4D9FFF]/10 p-3 rounded-2xl w-fit mb-3">
-                                <Droplet width={24} height={24} className="text-[#4D9FFF]" />
-                            </div>
-                            <div className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Soil Moisture</div>
-                            <div className="text-2xl font-black text-white group-hover:scale-105 transition-transform">
-                                {zoneHealth?.breakdown?.soilMoisture?.value || '--'}%
-                            </div>
-                        </div>
-
-                        <div className="bg-[#111111]/40 border border-white/5 rounded-[2rem] p-5 hover:bg-white/[0.07] transition-all group">
-                            <div className="bg-[#FFC857]/10 p-3 rounded-2xl w-fit mb-3">
-                                <NavArrowUp width={24} height={24} className="text-[#FFC857]" />
-                            </div>
-                            <div className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Crop Vigor</div>
-                            <div className="text-2xl font-black text-white group-hover:scale-105 transition-transform">
-                                {zoneHealth?.breakdown?.cropVigor?.score || '--'}
-                            </div>
-                        </div>
-                    </div>
-
-                    <PhotoAnalyzer zoneId={selectedZone} onAnalysisComplete={fetchZoneHealth} />
-                </div>
-
-                {/* Middle Column: Field Map + Calendar */}
-                <div className="col-span-12 lg:col-span-5 space-y-6">
-                    <FieldZoneMap
-                        zones={zones}
-                        selectedZone={selectedZone}
-                        onZoneSelect={setSelectedZone}
-                        zoneHealth={zoneHealth}
-                        location={location}
-                    />
-
-                    <AgronomyCalendar
-                        schedule={expertAdvice?.cropCalendar}
-                        loading={adviceLoading}
-                    />
-                </div>
-
-                {/* Right Column: Recommendations */}
-                <div className="col-span-12 lg:col-span-3">
-                    <ZoneRecommendations
-                        advice={expertAdvice}
-                        loading={adviceLoading}
-                        onApplyAction={handleApplyAction}
-                    />
-                </div>
-            </div>
-
-            {/* Mobile Layout - Tabbed Content */}
-            <div className="md:hidden">
-                {activeTab === 'overview' && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <ZoneHealthMeter
-                            zoneHealth={zoneHealth}
-                            loading={loading}
-                            zoneName={zones.find(z => z.id === selectedZone)?.name}
-                        />
-
-                        <ImpactPrediction
-                            prediction={expertAdvice?.impactPrediction}
-                            loading={adviceLoading}
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-[#111111]/40 border border-white/5 rounded-3xl p-5">
-                                <div className="bg-[#4D9FFF]/10 p-3 rounded-2xl w-fit mb-3">
-                                    <Droplet width={20} height={20} className="text-[#4D9FFF]" />
-                                </div>
-                                <div className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Moisture</div>
-                                <div className="text-2xl font-black text-white">
-                                    {zoneHealth?.breakdown?.soilMoisture?.value || '--'}%
-                                </div>
-                            </div>
-
-                            <div className="bg-[#111111]/40 border border-white/5 rounded-3xl p-5">
-                                <div className="bg-[#FFC857]/10 p-3 rounded-2xl w-fit mb-3">
-                                    <NavArrowUp width={20} height={20} className="text-[#FFC857]" />
-                                </div>
-                                <div className="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Vigor</div>
-                                <div className="text-2xl font-black text-white">
-                                    {zoneHealth?.breakdown?.cropVigor?.score || '--'}
-                                </div>
-                            </div>
-                        </div>
-
                         <PhotoAnalyzer zoneId={selectedZone} onAnalysisComplete={fetchZoneHealth} />
+                        <AgronomyCalendar schedule={expertAdvice?.cropCalendar} loading={adviceLoading} />
                     </div>
-                )}
+                </div>
 
-                {activeTab === 'map' && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <FieldZoneMap
-                            zones={zones}
-                            selectedZone={selectedZone}
-                            onZoneSelect={setSelectedZone}
-                            zoneHealth={zoneHealth}
-                            location={location}
-                        />
-
-                        <AgronomyCalendar
-                            schedule={expertAdvice?.cropCalendar}
-                            loading={adviceLoading}
-                        />
-                    </div>
-                )}
-
-                {activeTab === 'advice' && (
-                    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                        <ZoneRecommendations
-                            advice={expertAdvice}
-                            loading={adviceLoading}
-                            onApplyAction={handleApplyAction}
-                        />
-                    </div>
-                )}
-
-                {activeTab === 'history' && (
-                    <div className="p-8 bg-white/5 border border-white/5 rounded-[2.5rem] text-center animate-in zoom-in-95 duration-500">
-                        <Calendar className="mx-auto text-white/10 mb-4" width={48} height={48} />
-                        <h3 className="text-lg font-black text-white mb-2">Farm Action History</h3>
-                        <p className="text-sm text-white/40 mb-6">Historical records used for AI pattern learning</p>
-                        <button className="px-6 py-3 bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/60">
-                            Download PDF Report
-                        </button>
-                    </div>
-                )}
+                {/* Right: Expert Interventions */}
+                <div className="col-span-12 lg:col-span-4">
+                    <ZoneRecommendations advice={expertAdvice} loading={adviceLoading} onApplyAction={handleApplyAction} />
+                </div>
             </div>
 
-            {/* Data Quality Indicator */}
-            {zoneHealth && (
-                <div className="mt-6 p-4 bg-white/5 border border-white/5 rounded-2xl">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${zoneHealth.confidence.score > 75 ? 'bg-[#00D09C]' :
-                                zoneHealth.confidence.score > 50 ? 'bg-[#FFC857]' : 'bg-[#FF6B35]'
-                                } animate-pulse`} />
-                            <span className="text-xs font-bold text-white/60">
-                                Data Confidence: {zoneHealth.confidence.level.toUpperCase()} ({zoneHealth.confidence.score}%)
-                            </span>
-                        </div>
-                        <span className="text-[10px] text-white/30 font-medium">
-                            Updated: {new Date(zoneHealth.timestamp).toLocaleTimeString()}
-                        </span>
-                    </div>
+            {/* Mobile Layout */}
+            {zones.length > 0 && (
+                <div className="md:hidden space-y-6">
+                    <ZoneHealthMeter zoneHealth={zoneHealth} loading={loading} zoneName={selectedCropData?.name} />
+                    <ZoneRecommendations advice={expertAdvice} loading={adviceLoading} onApplyAction={handleApplyAction} />
                 </div>
             )}
+
+            {/* Empty State */}
+            {zones.length === 0 && !loading && (
+                <div className="p-12 bg-white/5 border border-white/10 rounded-[2.5rem] text-center">
+                    <Leaf className="mx-auto text-white/10 mb-4" width={48} height={48} />
+                    <h3 className="text-xl font-black text-white mb-2">No Crops Registered</h3>
+                    <p className="text-white/40 mb-6">Please add your crops in the Crop Management area to see analysis.</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function SmallStatCard({ icon, label, value }) {
+    return (
+        <div className="bg-[#111111]/40 border border-white/5 rounded-[1.5rem] p-4 group">
+            <div className="bg-white/5 p-2 rounded-xl w-fit mb-2">{icon}</div>
+            <p className="text-[8px] font-black uppercase text-white/30 tracking-widest mb-0.5">{label}</p>
+            <p className="text-base font-black text-white">{value}</p>
         </div>
     );
 }

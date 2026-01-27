@@ -9,6 +9,47 @@ import { Check, NavArrowRight, Leaf, Calendar, Map as MapIcon, Droplet } from 'i
  * Enterprise-grade data collection
  */
 
+const CROP_LIBRARY = [
+    // Grains
+    { value: 'rice', label: 'Rice (Paddy)', icon: '🌾', group: 'Grains' },
+    { value: 'wheat', label: 'Wheat', icon: '🌾', group: 'Grains' },
+    { value: 'corn', label: 'Maize (Corn)', icon: '🌽', group: 'Grains' },
+    { value: 'barley', label: 'Barley', icon: '🌾', group: 'Grains' },
+    { value: 'millet', label: 'Millet', icon: '🌾', group: 'Grains' },
+    { value: 'sorghum', label: 'Sorghum', icon: '🌾', group: 'Grains' },
+    { value: 'oats', label: 'Oats', icon: '🥣', group: 'Grains' },
+    // Vegetables
+    { value: 'tomato', label: 'Tomato', icon: '🍅', group: 'Vegetables' },
+    { value: 'potato', label: 'Potato', icon: '🥔', group: 'Vegetables' },
+    { value: 'onion', label: 'Onion', icon: '🧅', group: 'Vegetables' },
+    { value: 'garlic', label: 'Garlic', icon: '🧄', group: 'Vegetables' },
+    { value: 'carrot', label: 'Carrot', icon: '🥕', group: 'Vegetables' },
+    { value: 'cabbage', label: 'Cabbage', icon: '🥬', group: 'Vegetables' },
+    { value: 'broccoli', label: 'Broccoli', icon: '🥦', group: 'Vegetables' },
+    { value: 'spinach', label: 'Spinach', icon: '🥬', group: 'Vegetables' },
+    { value: 'pepper', label: 'Chili/Pepper', icon: '🌶️', group: 'Vegetables' },
+    { value: 'cucumber', label: 'Cucumber', icon: '🥒', group: 'Vegetables' },
+    // Fruits
+    { value: 'apple', label: 'Apple', icon: '🍎', group: 'Fruits' },
+    { value: 'banana', label: 'Banana', icon: '🍌', group: 'Fruits' },
+    { value: 'grape', label: 'Grapes', icon: '🍇', group: 'Fruits' },
+    { value: 'mango', label: 'Mango', icon: '🥭', group: 'Fruits' },
+    { value: 'orange', label: 'Citrus/Orange', icon: '🍊', group: 'Fruits' },
+    { value: 'strawberry', label: 'Strawberry', icon: '🍓', group: 'Fruits' },
+    { value: 'watermelon', label: 'Watermelon', icon: '🍉', group: 'Fruits' },
+    // Cash Crops
+    { value: 'cotton', label: 'Cotton', icon: '🌿', group: 'Cash Crops' },
+    { value: 'sugarcane', label: 'Sugarcane', icon: '🎋', group: 'Cash Crops' },
+    { value: 'coffee', label: 'Coffee', icon: '☕', group: 'Cash Crops' },
+    { value: 'tea', label: 'Tea', icon: '🍃', group: 'Cash Crops' },
+    { value: 'cocoa', label: 'Cocoa', icon: '🍫', group: 'Cash Crops' },
+    { value: 'rubber', label: 'Rubber', icon: '🪵', group: 'Cash Crops' },
+    { value: 'soybean', label: 'Soybean', icon: '🫘', group: 'Legumes' },
+    { value: 'peanut', label: 'Peanut', icon: '🥜', group: 'Legumes' },
+    { value: 'sunflower', label: 'Sunflower', icon: '🌻', group: 'Oilseeds' },
+    { value: 'mustard', label: 'Mustard', icon: '🌼', group: 'Oilseeds' }
+];
+
 export default function FieldSetupForm({ onComplete, initialData = {} }) {
     const [formData, setFormData] = useState({
         cropType: initialData.cropType || '',
@@ -20,14 +61,13 @@ export default function FieldSetupForm({ onComplete, initialData = {} }) {
         longitude: initialData.longitude || ''
     });
 
+    const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
 
-    const cropTypes = [
-        { value: 'rice', label: 'Rice (Paddy)', icon: '🌾' },
-        { value: 'wheat', label: 'Wheat', icon: '🌾' },
-        { value: 'cotton', label: 'Cotton', icon: '🌿' },
-        { value: 'tomato', label: 'Tomato', icon: '🍅' }
-    ];
+    const filteredCrops = CROP_LIBRARY.filter(crop =>
+        crop.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        crop.group.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const irrigationTypes = [
         { value: 'drip', label: 'Drip Irrigation', icon: '💧' },
@@ -115,31 +155,58 @@ export default function FieldSetupForm({ onComplete, initialData = {} }) {
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Crop Selection */}
                 <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-[#00D09C]/10 rounded-2xl">
-                            <Leaf width={24} height={24} className="text-[#00D09C]" />
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-3 bg-[#00D09C]/10 rounded-2xl">
+                                <Leaf width={24} height={24} className="text-[#00D09C]" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-white">Crop Information</h3>
+                                <p className="text-sm text-white/40 font-medium">Search and select your crop</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-xl font-black text-white">Crop Information</h3>
-                            <p className="text-sm text-white/40 font-medium">Select your crop type</p>
+
+                        {/* Search Bar */}
+                        <div className="relative flex-1 max-w-md">
+                            <input
+                                type="text"
+                                placeholder="Search crops (e.g. Rice, Mango, Legumes...)"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white font-bold focus:outline-none focus:border-[#00D09C] transition-all text-sm"
+                            />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {cropTypes.map((crop) => (
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                        {filteredCrops.map((crop) => (
                             <button
                                 key={crop.value}
                                 type="button"
-                                onClick={() => setFormData({ ...formData, cropType: crop.value })}
-                                className={`p-6 rounded-2xl border-2 transition-all duration-300 ${formData.cropType === crop.value
-                                        ? 'bg-[#00D09C]/10 border-[#00D09C] shadow-lg shadow-[#00D09C]/20'
-                                        : 'bg-white/5 border-white/10 hover:border-white/20'
+                                onClick={() => setFormData({ ...formData, cropType: crop.label })}
+                                className={`p-4 rounded-xl border-2 transition-all duration-300 text-center ${formData.cropType === crop.label
+                                    ? 'bg-[#00D09C]/10 border-[#00D09C] shadow-lg shadow-[#00D09C]/20'
+                                    : 'bg-white/5 border-white/10 hover:border-white/20'
                                     }`}
                             >
-                                <div className="text-4xl mb-3">{crop.icon}</div>
-                                <div className="text-sm font-bold text-white">{crop.label}</div>
+                                <div className="text-3xl mb-2">{crop.icon}</div>
+                                <div className="text-[11px] font-black text-white leading-tight">{crop.label}</div>
+                                <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1">{crop.group}</div>
                             </button>
                         ))}
+
+                        {filteredCrops.length === 0 && (
+                            <div className="col-span-full py-12 text-center">
+                                <p className="text-white/30 font-bold mb-4">Crop not found? Add it manually:</p>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, cropType: searchTerm })}
+                                    className="px-6 py-2 bg-[#00D09C] text-black font-black rounded-xl hover:scale-105 transition-all"
+                                >
+                                    Use "{searchTerm}" as Crop
+                                </button>
+                            </div>
+                        )}
                     </div>
                     {errors.cropType && <p className="text-[#FF6B35] text-sm font-bold mt-3">{errors.cropType}</p>}
                 </div>
@@ -202,8 +269,8 @@ export default function FieldSetupForm({ onComplete, initialData = {} }) {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, irrigationType: irrigation.value })}
                                 className={`p-5 rounded-2xl border-2 transition-all duration-300 ${formData.irrigationType === irrigation.value
-                                        ? 'bg-[#4D9FFF]/10 border-[#4D9FFF] shadow-lg shadow-[#4D9FFF]/20'
-                                        : 'bg-white/5 border-white/10 hover:border-white/20'
+                                    ? 'bg-[#4D9FFF]/10 border-[#4D9FFF] shadow-lg shadow-[#4D9FFF]/20'
+                                    : 'bg-white/5 border-white/10 hover:border-white/20'
                                     }`}
                             >
                                 <div className="text-3xl mb-2">{irrigation.icon}</div>
@@ -274,8 +341,8 @@ export default function FieldSetupForm({ onComplete, initialData = {} }) {
                         type="submit"
                         disabled={!isFormComplete}
                         className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-lg transition-all duration-300 ${isFormComplete
-                                ? 'bg-gradient-to-r from-[#00D09C] to-[#4D9FFF] text-white shadow-lg shadow-[#00D09C]/30 hover:shadow-[#00D09C]/50 hover:scale-105'
-                                : 'bg-white/5 text-white/30 cursor-not-allowed'
+                            ? 'bg-gradient-to-r from-[#00D09C] to-[#4D9FFF] text-white shadow-lg shadow-[#00D09C]/30 hover:shadow-[#00D09C]/50 hover:scale-105'
+                            : 'bg-white/5 text-white/30 cursor-not-allowed'
                             }`}
                     >
                         <span>Continue to Photos</span>

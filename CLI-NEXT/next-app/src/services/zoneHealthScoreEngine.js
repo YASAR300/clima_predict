@@ -76,14 +76,16 @@ class ZoneHealthScoreEngine {
                 imageAnalysis
             );
 
-            // Step 3: Calculate weighted overall score
-            const overallScore = Math.round(
-                cropVigorScore.score * this.weights.cropVigor +
-                weatherStressScore.score * this.weights.weatherStress +
-                soilMoistureScore.score * this.weights.soilMoisture +
-                growthStageScore.score * this.weights.growthStage +
-                diseaseRiskScore.score * this.weights.diseaseRisk
-            );
+            // Step 3: Calculate weighted overall score (Protect against NaN)
+            const scores = [
+                (Number(cropVigorScore.score) || 50) * this.weights.cropVigor,
+                (Number(weatherStressScore.score) || 70) * this.weights.weatherStress,
+                (Number(soilMoistureScore.score) || 60) * this.weights.soilMoisture,
+                (Number(growthStageScore.score) || 80) * this.weights.growthStage,
+                (Number(diseaseRiskScore.score) || 90) * this.weights.diseaseRisk
+            ];
+
+            const overallScore = Math.round(scores.reduce((a, b) => a + b, 0));
 
             // Step 4: Determine health level and trend
             const healthLevel = this.getHealthLevel(overallScore);

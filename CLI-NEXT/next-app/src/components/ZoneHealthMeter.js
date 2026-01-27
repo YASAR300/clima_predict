@@ -25,6 +25,7 @@ export default function ZoneHealthMeter({ zoneHealth, loading, zoneName }) {
     if (!zoneHealth) return null;
 
     const { overallScore, healthLevel, trend, breakdown, confidence } = zoneHealth;
+    const scoreVal = Number(overallScore) || 0;
     const circumference = 2 * Math.PI * 45; // reduced radius
     const strokeDashoffset = circumference - (overallScore / 100) * circumference;
 
@@ -53,7 +54,7 @@ export default function ZoneHealthMeter({ zoneHealth, loading, zoneName }) {
                             fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 22}
-                            strokeDashoffset={(2 * Math.PI * 22) - (overallScore / 100) * (2 * Math.PI * 22)}
+                            strokeDashoffset={(2 * Math.PI * 22) - (scoreVal / 100) * (2 * Math.PI * 22)}
                             className="transition-all duration-1000 ease-out"
                         />
                     </svg>

@@ -16,7 +16,7 @@ export default function ImpactPrediction({ prediction, loading }) {
         );
     }
 
-    const isPositive = prediction.yieldChange && prediction.yieldChange.includes('+');
+    const isPositive = prediction.yieldChange && String(prediction.yieldChange).includes('+');
 
     return (
         <div className="bg-[#111111]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-5 group relative overflow-hidden">

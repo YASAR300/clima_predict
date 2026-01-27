@@ -40,8 +40,15 @@ export default function PrecisionAgDashboard({ location }) {
                     }));
                     setZones(mappedCrops);
                     setSelectedZone(mappedCrops[0].id);
+                } else {
+                    setLoading(false);
+                    setAdviceLoading(false);
                 }
-            } catch (e) { console.error('Failed to fetch crops', e); }
+            } catch (e) {
+                console.error('Failed to fetch crops', e);
+                setLoading(false);
+                setAdviceLoading(false);
+            }
         };
         fetchCrops();
     }, []);

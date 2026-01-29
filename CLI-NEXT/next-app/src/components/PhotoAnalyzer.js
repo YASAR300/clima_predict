@@ -114,15 +114,15 @@ export default function PhotoAnalyzer({ zoneId, onAnalysisComplete }) {
                         onChange={handleImageSelect}
                         className="hidden"
                     />
-                    <div className="border-2 border-dashed border-white/10 group-hover:border-[#9D4EDD]/40 rounded-2xl p-8 text-center transition-all">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-[#9D4EDD]/10 rounded-2xl flex items-center justify-center group-hover:bg-[#9D4EDD]/20 transition-all">
-                            <Upload width={32} height={32} className="text-[#9D4EDD]" />
+                    <div className="border border-dashed border-white/10 group-hover:border-[#9D4EDD]/40 rounded-2xl p-6 text-center transition-all bg-white/[0.02]">
+                        <div className="w-12 h-12 mx-auto mb-3 bg-[#9D4EDD]/10 rounded-xl flex items-center justify-center group-hover:bg-[#9D4EDD]/20 transition-all">
+                            <Upload width={24} height={24} className="text-[#9D4EDD]" />
                         </div>
-                        <p className="text-sm font-bold text-white/60 group-hover:text-white/80 transition-colors">
-                            Upload crop photo
+                        <p className="text-[11px] font-black text-white/60 group-hover:text-white/80 transition-colors uppercase tracking-widest">
+                            Upload Photo
                         </p>
-                        <p className="text-xs text-white/30 mt-1">
-                            JPG, PNG up to 10MB
+                        <p className="text-[9px] text-white/20 mt-1 uppercase font-bold">
+                            Max 10MB
                         </p>
                     </div>
                 </label>

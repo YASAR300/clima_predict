@@ -36,21 +36,21 @@ export default function ImpactPrediction({ prediction, loading }) {
 
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <span className={`text-3xl font-black ${isPositive ? 'text-[#00D09C]' : 'text-white'}`}>
+                    <span className={`font-black tracking-tighter leading-none ${prediction.yieldChange?.length > 10 ? 'text-xl' : 'text-3xl'} ${isPositive ? 'text-[#00D09C]' : 'text-white'}`}>
                         {prediction.yieldChange || '0%'}
                     </span>
-                    <div className="h-8 w-px bg-white/5" />
-                    <div>
-                        <p className="text-[10px] font-black text-white leading-tight">{prediction.qualityImprovement}</p>
-                        <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest">Quality Outlook</p>
+                    <div className="h-6 w-px bg-white/10" />
+                    <div className="min-w-0">
+                        <p className="text-[9px] font-black text-white leading-tight line-clamp-2 uppercase tracking-tight">{prediction.qualityImprovement}</p>
+                        <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">Growth Outlook</p>
                     </div>
                 </div>
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/5 flex items-start gap-2">
-                <WarningCircle className="text-[#FFC857] mt-0.5" width={12} height={12} />
-                <p className="text-[9px] text-white/40 leading-relaxed font-bold">
-                    RISK REGISTERY: <span className="text-white">{prediction.riskIfIgnored}</span> loss potential if ignored.
+                <WarningCircle className="text-[#FFC857] mt-0.5 shrink-0" width={12} height={12} />
+                <p className="text-[9px] text-white/40 leading-relaxed font-bold line-clamp-3">
+                    REGISTRY: <span className="text-white/60">{prediction.riskIfIgnored}</span>
                 </p>
             </div>
         </div>

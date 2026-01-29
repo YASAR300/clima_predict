@@ -42,17 +42,17 @@ export default function ZoneHealthMeter({ zoneHealth, loading, zoneName, cropTyp
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00D09C] shadow-[0_0_10px_#00D09C]" />
                         <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] truncate">Biometric Core</span>
                     </div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none mb-3 truncate">
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none mb-3 truncate">
                         {cropType} <span className="text-[#00D09C]">Health</span>
                     </h3>
                     <div className="flex items-center gap-3">
-                        <span className="text-5xl font-black text-white tracking-tighter">{overallScore}</span>
+                        <span className="text-4xl md:text-5xl font-black text-white tracking-tighter">{overallScore}</span>
                         <div className="flex flex-col gap-1">
-                            <span className="text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest text-center"
+                            <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest text-center whitespace-nowrap"
                                 style={{ backgroundColor: `${healthLevel.color}20`, color: healthLevel.color }}>
                                 {healthLevel.level}
                             </span>
-                            <span className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em]">Verified Index</span>
+                            <span className="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em] whitespace-nowrap">Verified Index</span>
                         </div>
                     </div>
                 </div>
@@ -97,22 +97,21 @@ export default function ZoneHealthMeter({ zoneHealth, loading, zoneName, cropTyp
                     <span className="text-[9px] font-black text-[#00D09C] uppercase tracking-[0.2em]">Active Sensors</span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                     {impactFactors.map((f, i) => (
-                        <div key={i} className="space-y-2 group/biometric">
+                        <div key={i} className="space-y-1.5 group/biometric">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black text-white/60 uppercase tracking-widest group-hover/biometric:text-white transition-colors">{f.label}</span>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-black" style={{ color: f.color }}>
+                                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest group-hover/biometric:text-white transition-colors truncate max-w-[120px]">{f.label}</span>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[9px] font-black" style={{ color: f.color }}>
                                         {f.impact > 0 ? '+' : ''}{f.impact}
                                     </span>
-                                    <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter">Units</span>
                                 </div>
                             </div>
-                            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px] border border-white/5">
+                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
                                 <div
                                     className="h-full rounded-full transition-all duration-1000 origin-left"
-                                    style={{ width: `${f.value}%`, backgroundColor: f.color, boxShadow: `0 0 10px ${f.color}40` }}
+                                    style={{ width: `${f.value}%`, backgroundColor: f.color }}
                                 />
                             </div>
                         </div>

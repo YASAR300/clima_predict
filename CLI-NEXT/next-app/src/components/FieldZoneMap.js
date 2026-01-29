@@ -110,9 +110,8 @@ export default function FieldZoneMap({ zones, selectedZone, onZoneSelect, zoneHe
             {/* Map Container */}
             <div
                 ref={mapRef}
-                className="w-full h-[400px] md:h-[500px] bg-[#0D0D0D]"
-                style={{ minHeight: '400px' }}
-                className="w-full h-[320px] md:h-[500px] bg-[#0D0D0D]"
+                className="w-full h-[350px] md:h-[450px] bg-[#0D0D0D]"
+                style={{ minHeight: '350px' }}
             />
 
             {/* Loading Overlay */}

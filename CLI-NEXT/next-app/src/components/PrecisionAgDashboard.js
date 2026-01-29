@@ -2,17 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { Leaf, NavArrowUp, Droplet, WarningTriangle, Camera, Map as MapIcon, Refresh, Calendar, Sparks } from 'iconoir-react';
-
 import ZoneHealthMeter from './ZoneHealthMeter';
 import FieldZoneMap from './FieldZoneMap';
 import ZoneRecommendations from './ZoneRecommendations';
 import PhotoAnalyzer from './PhotoAnalyzer';
 import AgronomyCalendar from './AgronomyCalendar';
 import ImpactPrediction from './ImpactPrediction';
-
-/**
- * Precision Agriculture Dashboard - Optimized Compact Version
- */
+import Link from 'next/link';
+import { ReportColumns } from 'iconoir-react';
 
 export default function PrecisionAgDashboard({ location }) {
     const [activeTab, setActiveTab] = useState('overview');
@@ -302,6 +299,14 @@ export default function PrecisionAgDashboard({ location }) {
                             <NavArrowUp className="rotate-180" width={16} height={16} />
                         </div>
                     </div>
+
+                    <Link
+                        href={`/precision-agriculture/report/${selectedZone}`}
+                        className="flex items-center gap-2 px-6 py-3.5 bg-[#00D09C] border border-[#00D09C]/20 rounded-2xl text-black font-black text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#00D09C]/20"
+                    >
+                        <ReportColumns width={18} height={18} />
+                        View Report
+                    </Link>
                 </div>
             </div>
 
@@ -354,9 +359,10 @@ export default function PrecisionAgDashboard({ location }) {
             </div>
 
             {/* Main Interactive Dashboard Grid */}
-            <div className="grid grid-cols-12 gap-8 items-start animate-in fade-in duration-700">
-                {/* Left: Health & Yield (Scientific Focus) */}
-                <div className="col-span-12 xl:col-span-3 space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-700">
+
+                {/* Left Column: Intelligence Summary (Sticky) */}
+                <div className="lg:col-span-4 xl:col-span-3 space-y-8 lg:sticky lg:top-8">
                     <div className="bg-[#111111] border border-white/5 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#00D09C]/5 rounded-full blur-3xl pointer-events-none" />
                         <ZoneHealthMeter
@@ -382,9 +388,10 @@ export default function PrecisionAgDashboard({ location }) {
                     </div>
                 </div>
 
-                {/* Middle: Tactical Visualization Map */}
-                <div className="col-span-12 xl:col-span-5 space-y-8">
-                    <div className="bg-[#111111] border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl relative min-h-[500px]">
+                {/* Right Column: Visualization & Detailed Registry */}
+                <div className="lg:col-span-8 xl:col-span-9 space-y-8">
+                    {/* Top Section: Field Map (Primary Content) */}
+                    <div className="bg-[#111111] border border-white/5 rounded-[3.5rem] overflow-hidden shadow-2xl relative min-h-[500px]">
                         <FieldZoneMap
                             zones={zones}
                             selectedZone={selectedZone}
@@ -394,22 +401,39 @@ export default function PrecisionAgDashboard({ location }) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden">
-                            <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-6">Thermal Capture</h4>
-                            <PhotoAnalyzer zoneId={selectedZone} onAnalysisComplete={fetchZoneHealth} />
+                    {/* Bottom Section: Action Plan & Registry (Two-Column within Right Column) */}
+                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                        {/* Detailed Biological Interventions */}
+                        <div className="xl:col-span-7">
+                            <div className="bg-[#111111] border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl min-h-[600px] flex flex-col">
+                                <ZoneRecommendations advice={expertAdvice} loading={adviceLoading} onApplyAction={handleApplyAction} />
+                                <div className="p-6 border-t border-white/5 bg-black/40">
+                                    <Link
+                                        href={`/precision-agriculture/report/${selectedZone}`}
+                                        className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-white/60 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <ReportColumns width={16} height={16} />
+                                        Launch Full Comprehensive Brief
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden">
-                            <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-6">Agronomy Registry</h4>
-                            <AgronomyCalendar schedule={expertAdvice?.cropCalendar} loading={adviceLoading} />
-                        </div>
-                    </div>
-                </div>
 
-                {/* Right: Biological Interventions (Medical-Grade Actions) */}
-                <div className="col-span-12 xl:col-span-4 relative group">
-                    <div className="bg-[#111111] border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl min-h-[600px] flex flex-col">
-                        <ZoneRecommendations advice={expertAdvice} loading={adviceLoading} onApplyAction={handleApplyAction} />
+                        {/* Auxiliary Data: Thermal & Agronomy */}
+                        <div className="xl:col-span-5 space-y-8">
+                            <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden group hover:border-[#9D4EDD]/20 transition-all">
+                                <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                    <Camera width={14} height={14} /> Thermal Capture
+                                </h4>
+                                <PhotoAnalyzer zoneId={selectedZone} onAnalysisComplete={fetchZoneHealth} />
+                            </div>
+                            <div className="bg-[#111111] border border-white/5 rounded-[2.5rem] p-8 overflow-hidden group hover:border-[#00D09C]/20 transition-all">
+                                <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                    <Calendar width={14} height={14} /> Agronomy Registry
+                                </h4>
+                                <AgronomyCalendar schedule={expertAdvice?.cropCalendar} loading={adviceLoading} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
